@@ -53,7 +53,7 @@ void setup() {
 
 void loop(){
   //uncomment to use USB to feed data to braille display
-  //readHid();
+  readHid();
   
   // read the state of the pushbutton value:
   buttonState = digitalRead(buttonPin);
@@ -70,10 +70,7 @@ void loop(){
     digitalWrite(ledPin, LOW); 
   }
   /* touch slider 
-  int vdd = 1023;
-  int slide = analogRead(A0) - analogRead(A1);
-  Serial.println(slide);
-  delay(25);
+  add code from capacitiveslider test ino
   */
 }
 
@@ -85,19 +82,21 @@ void flashLED(){
 }
 
 //displays the specified character according to braille character/motor mapping
-//TODO: finish mapping.
-void displayCharacter(int chr){
+void displayCharacter(int chr1, int chr2){
   Serial.print("Displaying Character: ");
-  Serial.println(chr);
-  int char1 = 97; //a
-  int char2 = 98; //b
+  int m = (chr1 * 100) + chr2;
+  Serial.println(m);
   
-  StepperPosition result = braille.mapCharacterToCam(char1, char2);
+  StepperPosition result = braille.mapCharacterToCam(chr1, chr2);
+  Serial.print(result.topPosition);
+  Serial.print(" | ");
+  Serial.print(result.middlePosition);
+  Serial.print(" | ");
+  Serial.println(result.bottomPosition);
   changeLetter(result);
 }
 
 //changes the stepper position according to the array specified in the mapping.
-//TODO: add support for 6 motors.
 void changeLetter(StepperPosition pos){
   Serial.println("Setting Character");
   botStepper.step(12.5*pos.bottomPosition-botLoc);
@@ -106,12 +105,6 @@ void changeLetter(StepperPosition pos){
   midLoc += pos.middlePosition-midLoc;
   topStepper.step(12.5*pos.topPosition-topLoc);
   topLoc += pos.topPosition-topLoc;
-  Serial.print(botLoc);
-     Serial.print("  ");
-  Serial.print(midLoc);
-     Serial.print("  ");
-  Serial.print(topLoc);
-  Serial.println();
 }
 
 //Sends the steppers back to 0 position
@@ -139,8 +132,8 @@ void readHid(){
    // 1 = braille display
    if(buffer[0] == 1){
      //join characters for 2char display
-     int m = (buffer[1] * 100) + buffer[2];
-     displayCharacter(m);
+     //int m = (buffer[1] * 100) + buffer[2];
+     displayCharacter(buffer[1], buffer[2]);
    }else if(buffer[0] == 2){
       resetSteppers(); 
    }
