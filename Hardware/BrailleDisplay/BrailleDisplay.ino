@@ -52,6 +52,13 @@ void setup() {
 }
 
 void loop(){
+  
+  char string[] = "abcd";
+  USBPrint("move back a character to where the final space and uncomment to use USB to feed data to braille display");
+  delay(10000);  
+}
+
+void loop_(){
   //uncomment to use USB to feed data to braille display
   readHid();
   
@@ -63,7 +70,7 @@ void loop(){
   if (buttonState == HIGH) {     
     // turn LED on:    
     digitalWrite(ledPin, HIGH);  
-    //sendEvent();
+    //sendHighlightEvent();
   } 
   else {
     // turn LED off:
@@ -141,7 +148,7 @@ void readHid(){
 }
 
 //sends data back to USB host using the RawHID library.
-void sendEvent(){
+void sendHighlightEvent(){
   int result;
   int index = 2;
   boolean reading = false;
@@ -160,6 +167,40 @@ void sendEvent(){
   result = RawHID.send(buffer, 100);
   if (result > 0) {
     packetTotal = packetTotal + 1;
+  } else {
+    Serial.println("send packet failed!");
+  }
+}
+
+void USBPrint(String message){
+  int result;
+  //usb standard, must break up message if greater than 64
+  byte bufferb[64];
+  //attach the size of message to buffer for the endpoint to handle accordingly.
+  buffer[0] = message.length();
+  if(message.length() > 63){
+    //recursively send until all bytes sent.
+    String sub = message.substring(0, 63);
+    sub.getBytes(bufferb,64);
+    Serial.println(sub);
+    for (int i=1; i<63; i++) {
+      buffer[i] = bufferb[i-1];
+    }
+    //Send packet over usb
+    result = RawHID.send(buffer, 100);
+    USBPrint(message.substring(64, message.length()));
+  }else{
+    Serial.println(message);
+    message.getBytes(bufferb,64);
+    //message will fit within buffer, so just send it.
+    for (int i=1; i<63; i++) {
+      buffer[i] = bufferb[i-1];
+    }
+    //Send packet over usb
+    result = RawHID.send(buffer, 100);
+  }
+  if (result > 0) {
+    Serial.println("message sent");
   } else {
     Serial.println("send packet failed!");
   }

@@ -23,16 +23,15 @@ namespace TangibleApplicationSwitcher
         [DllImport("user32.dll")]
         private static extern
             bool IsIconic(IntPtr hWnd);
-        //USB\VID_16C0&PID_0486\5&2668B110&0&2
-        //{36fc9e60-c465-11cf-8056-444553540000}
-
-        static string localDevPath = "\\\\?\\hid#vid_16c0&pid_0486&mi_00#7&27673cd9&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}";
-        static HidDevice dev;
+        
+        static string devicePid = "pid_0486";
+        static HidDevice device;
         static string activeRfid = string.Empty;
         static List<RfidApp> apps = new List<RfidApp>();
 
         static void Main(string[] args)
         {
+            bool deviceConnected = false;
             //These rfids are hardcoded.  Ideally, with more hardware Id's could be dynamically assigned to 
             //any application.
             apps.Add(new RfidApp() { RFID = "67005DC3B64F", ProgramName = @"C:\Program Files (x86)\Microsoft Office\Office14\WinWord.exe" });
@@ -44,10 +43,17 @@ namespace TangibleApplicationSwitcher
             apps.Add(new RfidApp() { RFID = "67005D9D0CAB", ProgramName = @"C:\Program Files\Adobe\Adobe Photoshop CS6 (64 Bit)\photoshop.exe" });
 
             IEnumerable<HidDevice> _device = HidDevices.Enumerate();
-            dev = HidDevices.GetDevice(localDevPath);
-            if (dev != null)
+            HidDevice hd = _device.FirstOrDefault(p => p.DevicePath.Contains(devicePid));
+
+            if (hd != null)
             {
-                Console.WriteLine("Vendor ID:" + dev.Attributes.VendorId);
+                device = HidDevices.GetDevice(hd.DevicePath);
+                Console.WriteLine("Vendor ID:" + hd.Attributes.VendorId);
+                if (device != null)
+                {
+                    Console.WriteLine("Vendor ID:" + hd.Attributes.VendorId);
+                    deviceConnected = true;
+                }
 
                 listen();
             }
@@ -61,7 +67,7 @@ namespace TangibleApplicationSwitcher
         static void listen()
         {
             //ignore the first byte, it is always 0
-            HidDeviceData data = dev.Read(2000);
+            HidDeviceData data = device.Read(2000);
             char[] chars = new char[12];
             int index=0;
             if (data.Data.Length < 64) return;

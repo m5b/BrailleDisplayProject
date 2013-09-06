@@ -11,10 +11,6 @@ using System.Collections.ObjectModel;
 
 
 using HidLibrary;
-using LibUsbDotNet;
-using LibUsbDotNet.Info;
-using LibUsbDotNet.Main;
-
 
 namespace BrailleLegibilityTest
 {
@@ -32,6 +28,7 @@ namespace BrailleLegibilityTest
 
         Timer t = new Timer();
         List<string> phrases = new List<string>();
+        StringBuilder usbBuffer = new StringBuilder(2000);
         
         public FrmMain()
         {
@@ -192,19 +189,10 @@ namespace BrailleLegibilityTest
         {
             //ignore the first byte, it is always 0
             HidDeviceData data = device.Read(2000);
-            char[] chars = new char[12];
-            int index = 0;
-            if (data.Data.Length < 64) return;
-            //extract RFID
-            int j = 0;
-            for (int i = 3; i < 15; i++)
-            {
-                chars[j++] = (char)data.Data[i];
-            }
-            //check to see if id should be opened or closed
+            
+            //check to see if highlighting event has been sent
             if (data.Data[1] == 255 && data.Data[2] == 255) //open code
             {
-                //open(new String(chars));
                 if (InvokeRequired)
                 {
                     this.Invoke(new MethodInvoker(highlightText));
@@ -216,8 +204,39 @@ namespace BrailleLegibilityTest
             }
             else
             {
-                //close(new String(chars));
+                //must be a message, so add to buffer and display
+                //extract size of message
+                int sz = Convert.ToInt32(data.Data[1]);
+                string response = ""; 
+                if (sz > 64)
+                {
+                    response = System.Text.ASCIIEncoding.ASCII.GetString(data.Data, 2, 62);
+                    usbBuffer.Append(response);
+                    listen();
+                }
+                else
+                {
+                    response = System.Text.ASCIIEncoding.ASCII.GetString(data.Data, 2, sz);
+                    usbBuffer.Append(response);
+                    if (InvokeRequired)
+                    {
+                        this.Invoke(new MethodInvoker(printUSB));
+                    }
+                    else
+                    {
+                        printUSB();
+                    }
+                }
+
+                
             }
+        }
+
+        private void printUSB()
+        {
+            this.rtbOutput.AppendText(usbBuffer.ToString());
+            this.rtbOutput.AppendText("\n");
+            usbBuffer.Clear();
         }
 
         private void hidWorker_DoWork(object sender, DoWorkEventArgs e)

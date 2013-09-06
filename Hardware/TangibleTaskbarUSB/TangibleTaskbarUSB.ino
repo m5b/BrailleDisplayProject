@@ -55,10 +55,10 @@ void notifyChange(){
 }
 
 void loop(){
-  Serial.println((rotaryValue - change));
+  Serial.println((rotaryValue - lastChanged));
   
-  if((rotaryValue - change) > 50 ||
-    (rotaryValue - change) > -50)
+  if((rotaryValue - lastChanged) > 50 ||
+    (rotaryValue - lastChanged) > -50)
     readTag();
  
  //just slow it down to once every second...

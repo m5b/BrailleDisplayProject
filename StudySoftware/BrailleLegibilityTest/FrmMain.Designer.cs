@@ -42,6 +42,7 @@
             this.btnNext = new System.Windows.Forms.Button();
             this.lbWordlist = new System.Windows.Forms.CheckedListBox();
             this.btnFlag = new System.Windows.Forms.Button();
+            this.rtbOutput = new System.Windows.Forms.RichTextBox();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -192,11 +193,20 @@
             this.btnFlag.UseVisualStyleBackColor = true;
             this.btnFlag.Click += new System.EventHandler(this.btnFlag_Click);
             // 
+            // rtbOutput
+            // 
+            this.rtbOutput.Location = new System.Drawing.Point(3, 149);
+            this.rtbOutput.Name = "rtbOutput";
+            this.rtbOutput.Size = new System.Drawing.Size(454, 231);
+            this.rtbOutput.TabIndex = 11;
+            this.rtbOutput.Text = "";
+            // 
             // FrmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(855, 410);
+            this.Controls.Add(this.rtbOutput);
             this.Controls.Add(this.btnFlag);
             this.Controls.Add(this.lbWordlist);
             this.Controls.Add(this.btnNext);
@@ -235,6 +245,7 @@
         private System.Windows.Forms.CheckedListBox lbWordlist;
         private System.Windows.Forms.ToolStripDropDownButton btnReconnect;
         private System.Windows.Forms.Button btnFlag;
+        private System.Windows.Forms.RichTextBox rtbOutput;
     }
 }
 
