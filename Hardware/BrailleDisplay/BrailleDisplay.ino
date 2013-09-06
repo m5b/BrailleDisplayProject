@@ -52,13 +52,9 @@ void setup() {
 }
 
 void loop(){
-  
-  char string[] = "abcd";
-  USBPrint("move back a character to where the final space and uncomment to use USB to feed data to braille display");
-  delay(10000);  
-}
-
-void loop_(){
+  //To send a message over usb to the software use the USBPrint function.
+  //ex.
+   USBPrint("Hello Meng, thank you for building me!");
   //uncomment to use USB to feed data to braille display
   readHid();
   
