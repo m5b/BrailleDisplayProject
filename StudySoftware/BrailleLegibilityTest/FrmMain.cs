@@ -43,7 +43,9 @@ namespace BrailleLegibilityTest
         {
             lblDevice.Text = "Connecting to Braille Device...";
             Application.DoEvents();
-
+            //Put this in for dramatic effect to show that a reconnection
+            //is occuring in the UI.
+            System.Threading.Thread.Sleep(3000);
             IEnumerable<HidDevice> _device = HidDevices.Enumerate();
             HidDevice hd = _device.FirstOrDefault(p => p.DevicePath.Contains(devicePid));
 
@@ -76,7 +78,6 @@ namespace BrailleLegibilityTest
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            highlightText();
         }
 
         private void btnStop_Click(object sender, EventArgs e)
@@ -86,6 +87,7 @@ namespace BrailleLegibilityTest
 
         private void btnReset_Click(object sender, EventArgs e)
         {
+            //send a signal to the device to tell it to reset.
             byte[] b = new byte[5];
             b[0] = 2;//padding
             b[1] = 2;
@@ -137,6 +139,9 @@ namespace BrailleLegibilityTest
 
         private void next()
         {
+            //reset place counter
+            place = 0;
+
             phraseCount++;
 
             if (phraseCount > phrases.Count)
@@ -155,42 +160,47 @@ namespace BrailleLegibilityTest
 
         private void highlightText()
         {
-            place = 0;
-            t.Start();
+            byte[] b = new byte[7];
+            //lead is getting trimmed for some reason, so adding padding here.
+            //Will also use this for message identification in future.
+            b[0] = 2;//padding
+            b[1] = 1;
+
+            if (tbOutput.TextLength > place)
+            {
+                tbOutput.Select(place, 4);
+
+                byte[] bt = System.Text.ASCIIEncoding.ASCII.GetBytes(tbOutput.SelectedText);
+                for (int i = 0; i < bt.Length; i++)
+                {
+                    b[i+2] = bt[i];
+                }
+                
+                b[6] = 1;//end of line char
+
+                place = place + 4;
+            }
+            //send to device
+            if (device != null)
+                device.Write(b);
         }
 
         void t_Tick(object sender, EventArgs e)
         {
-            if (tbOutput.TextLength > place)
-            {
-                tbOutput.Select(place, 2);
-                
-                //lead is getting trimmed for some reason, so adding padding here.
-                //Will also use this for message identification in future.
-                byte[] b = new byte[5];
-                b[0] = 2;//padding
-                b[1] = 1;
-                byte[] bt = System.Text.ASCIIEncoding.ASCII.GetBytes(tbOutput.SelectedText);
-                b[2] = bt[0];
-                b[3] = bt[1];
-                b[4] = 1;//end of line char
-                //send to device
-                if(device != null)
-                    device.Write(b);
-                place = place + 2;
-            }
-            else
-            {
-                t.Stop();
-            }
+            
         }
         
         private void listen()
         {
             //ignore the first byte, it is always 0
             HidDeviceData data = device.Read(2000);
+            if (data.Status == HidDeviceData.ReadStatus.NotConnected) return;
+
+            //check to see if an event has been sent
+            //so far only two are established, so if starts with 0 then ignore.
             
-            //check to see if highlighting event has been sent
+            //if the first two bytes are 255,then we are being sent a request for character
+            //data.
             if (data.Data[1] == 255 && data.Data[2] == 255) //open code
             {
                 if (InvokeRequired)
@@ -202,7 +212,7 @@ namespace BrailleLegibilityTest
                     highlightText();
                 }
             }
-            else
+            else if(data.Data[1] > 0) //a code exists, so do something.  
             {
                 //must be a message, so add to buffer and display
                 //extract size of message
@@ -236,6 +246,7 @@ namespace BrailleLegibilityTest
         {
             this.rtbOutput.AppendText(usbBuffer.ToString());
             this.rtbOutput.AppendText("\n");
+            this.rtbOutput.ScrollToCaret();
             usbBuffer.Clear();
         }
 
@@ -246,7 +257,8 @@ namespace BrailleLegibilityTest
 
         private void FrmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            //hidWorker.CancelAsync();
+            t.Stop();
+            hidWorker.CancelAsync();
         }
 
         private void hidWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

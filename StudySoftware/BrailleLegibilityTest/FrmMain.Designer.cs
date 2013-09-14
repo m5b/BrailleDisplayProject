@@ -65,12 +65,14 @@
             // 
             this.btnStart.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
             this.btnStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnStart.Enabled = false;
             this.btnStart.Location = new System.Drawing.Point(3, 120);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
             this.btnStart.TabIndex = 1;
             this.btnStart.Text = "Start";
             this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Visible = false;
             this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
             // 
             // hidWorker
@@ -116,24 +118,28 @@
             // 
             this.btnReset.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
             this.btnReset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnReset.Enabled = false;
             this.btnReset.Location = new System.Drawing.Point(165, 120);
             this.btnReset.Name = "btnReset";
             this.btnReset.Size = new System.Drawing.Size(75, 23);
             this.btnReset.TabIndex = 3;
             this.btnReset.Text = "Reset";
             this.btnReset.UseVisualStyleBackColor = true;
+            this.btnReset.Visible = false;
             this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
             // btnStop
             // 
             this.btnStop.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
             this.btnStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnStop.Enabled = false;
             this.btnStop.Location = new System.Drawing.Point(84, 120);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
             this.btnStop.TabIndex = 5;
             this.btnStop.Text = "Stop";
             this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Visible = false;
             this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // cbPhraseSets

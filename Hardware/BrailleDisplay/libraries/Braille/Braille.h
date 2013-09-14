@@ -10,18 +10,22 @@
 #include "WProgram.h"
 
 struct StepperPosition{
-	int topPosition;
-	int middlePosition;
-	int bottomPosition;
+    int upperTop;
+    int upperMiddle;
+    int upperBottom;
+    int lowerTop;
+    int lowerMiddle;
+    int lowerBottom;
 };
 // library interface description
 class Braille
 {
   // user-accessible "public" interface
   public:
-	StepperPosition mapCharacterToCam(int char1, int char2);
+	StepperPosition mapCharacterToCam(int char1, int char2, int char3, int char4);
   // library-accessible "private" interface
   private:
+    int matchPosition(uint8_t *camArr, uint8_t camPosition);
 	uint8_t getTop(int ch);
 	uint8_t getMiddle(int ch);
 	uint8_t getBottom(int ch);

@@ -14,17 +14,20 @@ Braille braille;
 //setup the stepper motors.  The numbers should match the pins that are assigned to the Teensy board.
 
 //top row
-Stepper botStepper(stepsPerRevolution, 44,39,16,11);   
-Stepper midStepper(stepsPerRevolution, 42,38,14,9); 
-Stepper topStepper(stepsPerRevolution, 40,18,12,8);     
+Stepper upBotStepper(stepsPerRevolution, 12,13,14,15);   
+Stepper upMidStepper(stepsPerRevolution, 18,19,20,21); 
+Stepper upTopStepper(stepsPerRevolution, 22,23,24,25);     
 //bottom row           
-Stepper lowBotStepper(stepsPerRevolution, 25,24,23,22);          
-Stepper lowMidStepper(stepsPerRevolution, 1,2,3,4);          
-Stepper lowTopStepper(stepsPerRevolution, 20,21,5,6); 
+Stepper lowBotStepper(stepsPerRevolution, 0,1,2,3);          
+Stepper lowMidStepper(stepsPerRevolution, 4,5,6,7);          
+Stepper lowTopStepper(stepsPerRevolution, 8,9,10,11); 
 
-int botLoc = 0;
-int midLoc = 0;
-int topLoc = 0;
+int upBotLoc = 0;
+int upMidLoc = 0;
+int upTopLoc = 0;
+int lowBotLoc = 0;
+int lowMidLoc = 0;
+int lowTopLoc = 0;
 
 unsigned int packetTotal = 0;
 // RawHID packets should be 64 bytes
@@ -38,10 +41,13 @@ const int ledPin =  6;      // the number of the LED pin
 int buttonState = 0;         // variable for reading the pushbutton status
 
 void setup() {
-  // set the speed of stepper motors to 60 rpm:
-  botStepper.setSpeed(80);
-  midStepper.setSpeed(80);
-  topStepper.setSpeed(80);
+  // set the speed of stepper motors to 80 rpm:
+  upBotStepper.setSpeed(80);
+  upMidStepper.setSpeed(80);
+  upTopStepper.setSpeed(80);
+  lowBotStepper.setSpeed(80);
+  lowMidStepper.setSpeed(80);
+  lowTopStepper.setSpeed(80);
   
   // initialize the LED pin as an output:
   pinMode(ledPin, OUTPUT);      
@@ -54,27 +60,19 @@ void setup() {
 void loop(){
   //To send a message over usb to the software use the USBPrint function.
   //ex.
-   USBPrint("Hello Meng, thank you for building me!");
+  //USBPrint("Hello Meng, thank you for building me!");
   //uncomment to use USB to feed data to braille display
+  //readHID will pull data from the USB connection with the host system.  If any data
+  //has been sent it will parse and update the braille motors.
   readHid();
   
-  // read the state of the pushbutton value:
-  buttonState = digitalRead(buttonPin);
-
-  // check if the pushbutton is pressed.
-  // if it is, the buttonState is HIGH:
-  if (buttonState == HIGH) {     
-    // turn LED on:    
-    digitalWrite(ledPin, HIGH);  
-    //sendHighlightEvent();
-  } 
-  else {
-    // turn LED off:
-    digitalWrite(ledPin, LOW); 
-  }
-  /* touch slider 
-  add code from capacitiveslider test ino
-  */
+  //in order to tell readHid to send data, we need to request it first.
+  //requestHid will send a command over USB to the host system to request 4 characters
+  //to display.
+  //this delay is in place to simulate the movement of the finger.  It should be replaced
+  //with actual finger touch response logic.
+  delay(3000);
+  requestHid();
 }
 
 //use this to show action on the microcontroller.  Just flashes the onboard led.
@@ -85,71 +83,70 @@ void flashLED(){
 }
 
 //displays the specified character according to braille character/motor mapping
-void displayCharacter(int chr1, int chr2){
-  Serial.print("Displaying Character: ");
-  int m = (chr1 * 100) + chr2;
-  Serial.println(m);
+void displayCharacter(char chr1, char chr2, int chr3, int chr4){
+  StepperPosition result = braille.mapCharacterToCam(chr1, chr2, chr3, chr4);
+  String msg;
+  msg = "Upper Top: ";
+  msg = msg + result.upperTop;
+  USBPrint(msg);
   
-  StepperPosition result = braille.mapCharacterToCam(chr1, chr2);
-  Serial.print(result.topPosition);
-  Serial.print(" | ");
-  Serial.print(result.middlePosition);
-  Serial.print(" | ");
-  Serial.println(result.bottomPosition);
+  msg = "Upper Mid: ";
+  msg = msg + result.upperMiddle;
+  USBPrint(msg);
+  
+  msg = "Upper Bot: ";
+  msg = msg + result.upperBottom;
+  USBPrint(msg);
+  
+  msg = "Lower Top: ";
+  msg = msg + result.lowerTop;
+  USBPrint(msg);
+  
+  msg = "Lower Mid: ";
+  msg = msg + result.lowerMiddle;
+  USBPrint(msg);
+  
+  msg = "Lower Bot: ";
+  msg = msg + result.lowerBottom;
+  USBPrint(msg);
+  
   changeLetter(result);
 }
 
 //changes the stepper position according to the array specified in the mapping.
 void changeLetter(StepperPosition pos){
-  Serial.println("Setting Character");
-  botStepper.step(12.5*pos.bottomPosition-botLoc);
-  botLoc += pos.bottomPosition-botLoc;
-  midStepper.step(12.5*pos.middlePosition-midLoc);
-  midLoc += pos.middlePosition-midLoc;
-  topStepper.step(12.5*pos.topPosition-topLoc);
-  topLoc += pos.topPosition-topLoc;
+  USBPrint("Updating Display.");
+  
+  upBotStepper.step(12.5*(pos.upperBottom - upBotLoc));
+  upBotLoc = pos.upperBottom;
+  
+  upMidStepper.step(12.5*(pos.upperMiddle - upMidLoc));
+  upMidLoc = pos.upperMiddle;
+  
+  upTopStepper.step(12.5*(pos.upperTop - upTopLoc));
+  upTopLoc = pos.upperTop;
+  
+  lowBotStepper.step(12.5*(pos.lowerBottom - lowBotLoc));
+  lowBotLoc = pos.lowerBottom;
+  
+  lowMidStepper.step(12.5*(pos.lowerMiddle - lowMidLoc));
+  lowMidLoc = pos.lowerMiddle;
+  
+  lowTopStepper.step(12.5*(pos.lowerTop - lowTopLoc));
+  lowTopLoc = pos.lowerTop;
 }
 
 //Sends the steppers back to 0 position
 void resetSteppers(){
   Serial.println("Resetting");
-  botStepper.step(-(12.5*botLoc));
-  midStepper.step(-(12.5*midLoc));
-  topStepper.step(-(12.5*topLoc));
-  botLoc,midLoc,topLoc = 0;
 }
 
-//maps a character to braille, not finished.
-int characterMapper(char c){
-  return 0;
-}
-
-//read the USB stream using the RawHID library.
-void readHid(){
- int result, index;
-  index = 0;
- result = RawHID.recv(buffer, 0);
- if(result > 0){
-   //changeLetter();
-   //check for message type
-   // 1 = braille display
-   if(buffer[0] == 1){
-     //join characters for 2char display
-     //int m = (buffer[1] * 100) + buffer[2];
-     displayCharacter(buffer[1], buffer[2]);
-   }else if(buffer[0] == 2){
-      resetSteppers(); 
-   }
- }
-}
-
-//sends data back to USB host using the RawHID library.
-void sendHighlightEvent(){
+void requestHid(){
   int result;
   int index = 2;
   boolean reading = false;
-  //if starts with 255/ then open, otherwise it is a remove
-  //use button to toggle 
+  //send 255 in first two bytes to request a 4 character set to be sent to the device.
+  //each request will increment on the host software.
   buffer[0] = 255;
   buffer[1] = 255;
   
@@ -166,6 +163,34 @@ void sendHighlightEvent(){
   } else {
     Serial.println("send packet failed!");
   }
+}
+
+//read the USB stream using the RawHID library.
+void readHid(){
+ int result, index;
+ byte buff[64];
+ index = 0;
+ result = RawHID.recv(buff, 0);
+ if(result > 0){
+   //check for message type
+   // 1 = braille display
+   if(buff[0] == 1){
+     USBPrint("Characters Received."); 
+     String msg = "Displaying Character: ";
+     msg = msg + (int) buff[1];
+     msg = msg + "-";
+     msg = msg + (int) buff[2];
+     msg = msg + "-";
+     msg = msg + (int) buff[3];
+     msg = msg + "-";
+     msg = msg + (int) buff[4];
+     USBPrint(msg);
+     Serial.print(msg);
+     displayCharacter(buff[1], buff[2], buff[3], buff[4]);
+   }else if(buff[0] == 2){
+      resetSteppers(); 
+   }
+ }
 }
 
 void USBPrint(String message){
@@ -200,5 +225,51 @@ void USBPrint(String message){
   } else {
     Serial.println("send packet failed!");
   }
+}
+
+//converts an ardiuno digital pin to allow manipulation 
+//of registers.  Digital read/writes are too slow to get an accurate
+//measurement.  Then pumps the pin and takes a measurement of the time
+//required and thus the amount of capacitance on the pin
+
+int checkPinCapacitance(int arduinoPin){
+  volatile uint8_t* PORT;
+  volatile uint8_t* DDR; 
+  volatile uint8_t* PIN;
+  uint8_t pinToPort, mask;
+  byte pinBitMask;
+
+  //helper methods that are in pins_arduino.h
+  pinToPort = digitalPinToPort(arduinoPin);
+  mask = digitalPinToBitMask(arduinoPin);
+
+  PIN = portInputRegister(pinToPort);
+  PORT = portOutputRegister(pinToPort);
+  DDR = portModeRegister(pinToPort);
+  pinBitMask = digitalPinToBitMask(arduinoPin);
+
+  //now perform cycle
+  //set pin low
+  *PORT &= ~(pinBitMask);
+  *DDR |= pinBitMask;
+  //wait a moment and then pull pin high
+  delay(5);
+  *DDR &= ~(pinBitMask);
+  *PORT |= pinBitMask;
+
+  //check to see if there is resistance on the pin.  By measuring the amount of time
+  //it took to pull the pin high.
+  int hasResistance;
+  //add small delay to control sensitivity of the read.  A longer delay will require
+  //higher capacitance.  1 microsecond is good for basic touch by finger.
+  delayMicroseconds(2);
+
+  if(*PIN & pinBitMask){
+    hasResistance = 0;
+  }
+  else{
+    hasResistance = 1;
+  }
+  return hasResistance;
 }
 

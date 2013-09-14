@@ -36,11 +36,11 @@ rowG = [0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,0,0,1,1,1,0,0,1,1,0,1,0,1,0,0,1,0];
 //print_top();
 //print_pin_case(6);
 //print_pin_stack();
-camshaftTop(3, 31, true);
+rotate([22.5*0,0,0]) camshaftTop(3, 31, true);
 //translate([0,0,35]) 
-//camshaftMid(3, 31, true);//standard is 21
-//translate([0,0,70]) 
-//camshaftBottom(3, 31, true);
+//rotate([(22.5*12),0,0]) camshaftMid(3, 31, true);//standard is 21
+//translate([0,0,70])
+//rotate([22.5*0,0,0]) camshaftBottom(3, 31, true);
 /*
     PRINT
 
