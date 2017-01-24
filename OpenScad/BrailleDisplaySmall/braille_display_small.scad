@@ -1,3 +1,5 @@
+// TODO Re-align padding for cover plate subtraction as well.
+
 //some globals that help with pin adjustment, not even sure if I use them anymore!
 width=80;
 bearing_radius = 8;//11.8;
@@ -31,7 +33,7 @@ import("camBotA.stl");
 uncomment the follow assembly methods to view full assembly of a cam and the frame
 */
 //assembledcam();
-assembly();
+assembly(false);
 
 /*
 Print lift pins
@@ -115,10 +117,10 @@ module assembly(p=true){
     edgePins(6,41.5,true,p);
     edgePins(19.9,41.5,false,p);
 
-	rotate([0,0,0]) coverplate(true);
-	baseplate(true);
-	translate([-18,0,0]) rotate([0,0,0]) frontplate();
-	translate([15,0,0]) rotate([0,0,0]) backplate();
+	//rotate([0,0,0]) coverplate(true);
+	//baseplate(true);
+	//translate([-18,0,0]) rotate([0,0,0]) frontplate();
+	//translate([15,0,0]) rotate([0,0,0]) backplate();
 
     //Using this for quick spacing eye check, leave commented out.
     //translate([-20,0,0]) color("red") cube([20,20,20]);
@@ -172,10 +174,10 @@ The coverplate for the display with all pins differenced out.
 module coverplate(print=true){
 	difference(){
 	  translate([12,0,42]) color("blue") cube([78,100,5], center=true);
-	  centerPins(-11.9, 13.2, 180, p);
-	  centerPins(13.9,13.2, 0, p);
-	  edgePins(6,41.5,true,p);
-	  edgePins(19.9,41.5,false,p);
+	  centerPins(-11.9, 13.2, 180, print);
+	  centerPins(13.9,13.2, 0, print);
+	  edgePins(6,41.5,true,print);
+	  edgePins(19.9,41.5,false,print);
 	}
 }
 /*
@@ -184,8 +186,8 @@ The baseplate for the display with all pins differenced out.
 module baseplate(print=true){
 	difference(){
 	  translate([12,0,-13.5]) color("blue") cube([78,100,5], center=true);
-	  centerPins(-11.9, 13.2, 180, p);
-	  centerPins(13.9,13.2, 0, p);
+	  centerPins(-11.9, 13.2, 180, print);
+	  centerPins(13.9,13.2, 0, print);
 	}
 }
 
@@ -203,11 +205,15 @@ print = if true, adds padding to either side of support edge of pins.  Set to tr
 
 module centerPins(loc=0,z=0, r=0, print=false){
 	rotate([0,0,r]){
-	  	translate([loc,-.75,z]){
-		  translate([0,0,0]) centerLiftPin(.4, 30, 0, print);
-		  translate([3,0,0]) centerLiftPin(.4, 30, 0, print);
-		  translate([7,0,0]) centerLiftPin(.4, 30, 0, print);
-		  translate([10,0,0]) centerLiftPin(.4, 30, 0, print);
+
+        // Apparently there is slight misalignment that happens on the rotated pieces...
+        xOffset = r == 0 ? 0 : 0.05;
+
+	  	translate([loc + xOffset,-.75,z]){
+		  translate([0,0,0])  centerLiftPin(.4, 30, print);
+		  translate([3,0,0])  centerLiftPin(.4, 30, print);
+		  translate([7,0,0])  centerLiftPin(.4, 30, print);
+		  translate([10,0,0]) centerLiftPin(.4, 30, print);
   		}
     }
 }
@@ -222,12 +228,14 @@ print = if true, adds padding to either side of support edge of pins.  Set to tr
 module edgePins(loc=0,z=0,short=true,print=true){
     translate([loc,0,z]){
         x = -33;
-        for(i=[1:2:3]){
+        for(i=[1,3]){
             rotate([0,0,i*90]){
-            	translate([x,3,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
-                translate([x,6,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
-                translate([x,-1,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
-                translate([x,-4,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
+                // Apparently there is slight misalignment that happens on the rotated pieces...
+                yOffset = i == 3 ?-0.15 : 0;
+            	translate([x,3 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
+                translate([x,6 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
+                translate([x,-1 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
+                translate([x,-4 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
             }
        }
     }
@@ -236,17 +244,21 @@ module edgePins(loc=0,z=0,short=true,print=true){
 /*
 Lift pin used in center, with base mount
 */
-module centerLiftPin(pinRadius, height, gap=0, print=false){
-    translate([0,.75,height]) {
-		rotate([0,90,0]) color("green") cylinder(r=.85, h=2, $fn=40);
-    	if(print) translate([1,0,-1]) cube([2,6,5],center=true);
-	}
-    cube([2 + gap,1.5 + gap,height]);
-    translate([0,1.5,0]) rotate([105,0,0]) cube([2,1.5,20]);
-    translate([0,-7,-2.7]) rotate([0,90,0])  cylinder(r=2, h=2, $fn=40);
-    translate([0,-21,-24.5]) cube([2,4,21]);
+module centerLiftPin(pinRadius, height, print=false){
+    thickness = 1.85;
+
+    hull() {
+        translate([0,.75,height - 0.75]) {
+            rotate([0,90,0]) color("green") cylinder(r=.85, h=thickness, $fn=40);
+            if(print) translate([1,0,-1]) cube([2,6,5],center=true);
+        }
+        cube([thickness,1.5,height - 0.75]);
+    }
+    translate([0,1.5,0]) rotate([105,0,0]) cube([thickness,1.5,20]);
+    translate([0,-7,-2.7]) rotate([0,90,0])  cylinder(r=2, h=thickness, $fn=40);
+    translate([0,-21,-24.5]) cube([thickness,4,21]);
     translate([0,-21,-27]){
-		 cube([2,20,3]);
+		 cube([thickness,20,3]);
 		 if(print){
     		translate([-.2,-.2,-1]) cube([2.3,20.4,4]);
 		}
@@ -280,12 +292,13 @@ module liftPinLong(pinRadius, print=false){
 		    translate([3,0,0]) cylinder(r=1, h=h, $fn=40);
 		}
 		//lift arm
-		translate([46,-7,.35]) {
-hull(){
-		    rotate([0,0,85]) cube([8,1.5,h-.5]);
-		    //pin lobe
-		    translate([0,8,.7]) rotate([0,0,0]) color("green") sphere(r=.85, $fn=40);//cylinder(r=.85, h=h-.4, $fn=40);
-}
+		translate([46,-7,0]) {
+            hull(){
+                color("red")
+                rotate([0,0,85]) cube([8,1.5,h]);
+                //pin lobe
+                translate([0,8,0]) color("green") cylinder(r=.85, h=h, $fn=40);
+            }
 		}
 	}
     }
@@ -295,7 +308,7 @@ Lift pins with lift cam in inner position
 */
 module liftPin(pinRadius, print=false){
     rotate([90,0,0]){
-        h = 1.9;
+        h = 1.85;
 
         cube([28.5,2,h]);
 		if(print){
@@ -308,8 +321,11 @@ module liftPin(pinRadius, print=false){
             translate([3,0,0]) cylinder(r=1, h=h, $fn=40);
         }
         translate([31,-7,0]) {
-            rotate([0,0,85]) cube([8,1.5,h]);
-            translate([0,8.5,0]) rotate([0,0,-5]) color("green") cylinder(r=.85, h=h, $fn=40);
+            hull() {
+                color("blue")
+                rotate([0,0,85]) cube([8,1.5,h]);
+                translate([0,8,0]) color("green") cylinder(r=.85, h=h, $fn=40);
+            }
         }
     }
 }
