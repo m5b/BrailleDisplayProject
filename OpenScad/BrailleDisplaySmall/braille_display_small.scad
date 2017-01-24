@@ -1,161 +1,58 @@
-use <BezierScad.scad>
-
+//some globals that help with pin adjustment, not even sure if I use them anymore!
 width=80;
-
 bearing_radius = 8;//11.8;
 bearing_height = 6;
 pin_rad = .9;//.4
 
+/*
+I have added individual cam stl's to the repository. To print them in either ABS or cut with laser, arrange appropriately and export.
+The cam stl file names are:
 
-//liftPin(.4);
-//doubleLiftPin(.4); 
-//translate([0,0,2.2]) %centerPinBridge();
+Cam responsible for top row of braille cell:
+camTopA.stl
+camTopB.stl
+camTopC.stl
 
-//translate([0,-12.5,9]) assembly(false);
-//printDoubleLiftPin(6);
-//printCenterLiftPin();
+Cam responsible for middle row of braille cell:
+camMidA.stl
+camMidB.stl
+camMidC.stl
 
+Cam responsible for bottom row of braille cell:
+camBotA.stl
+camBotB.stl
+camBotC.stl
 
-
-//import("braille_display_v2_shaft.stl");
-//import("braille_display_v2_stepper-connector1.stl");
-//import("doublepin.stl");
-//import("singleliftpin.stl");
-
-                
-rotate([0,-90,0]){
-//centerLiftPin2(.4,25);
-difference(){
-  // translate([-9,-21,-30]) frontPlate();
-    //translate([15,-21,-30]) backPlate();
-        translate([-9,-2.5,14]) {
-difference(){
-           /* centerPinBridge();
-            translate([9,1.5,-4.5]){
-                translate([0,0,0]) centerLiftPin(.4,23);
-                translate([3,0,0]) centerLiftPin(.4,23);
-                translate([7,0,0]) centerLiftPin(.4,23);
-                translate([10,0,0]) centerLiftPin(.4,23);
-            }*/
-        }
-        }
-    //assembly(false);
-}
-}
-//liftPinInsetGroup(1);
-//plateBuild();
-//assembly();
-//printBearingTest();
-module printBearingTest(){
-    rotate([0,90,0]){
-    difference(){
-    color("green") cube([bearing_height,25,25],center=true);
-    rotate([0,90,0]) translate([0,0,-10]) cylinder(r=8, h=20, $fn=40); 
-    }
-}
-}
-
-module printCenterLiftPin(){
-    translate([0,0,1.6]){
-		rotate([0,90,0]) translate([0,0,0]) centerLiftPin(.4,30);
-       	rotate([0,90,0])  translate([0,3,0]) centerLiftPin(.4,30);
-        rotate([0,90,0]) translate([0,6,0]) centerLiftPin(.4,30);
-        rotate([0,90,0])  translate([0,9,0]) centerLiftPin(.4,30);
-    }
-}
-
-module printDoubleLiftPin(n){
-    
-    for(i=[0:n-1]){
-        x = i*20;
-        if(i%2==0){
-            translate([x,0,0]) doubleLiftPin(.4);
-        }else{
-            translate([x,-40,0]) doubleLiftPin(.4);
-        }
-    }
-}
-
-//rotate([0,0,0]) printSingleLiftPin(1);
-module printSingleLiftPin(n){
-    
-    for(i=[0:n-1]){
-        x = i*20;
-        if(i%2==0){
-            translate([x,0,0]) liftPin(.4);
-        }else{
-            translate([x,-15,0]) liftPin(.4);
-        }
-    }
-}
-
-module topPlate(){
-    difference(){
-        translate([-15,-25.5,17]) basePlate();
-        //translate([-15,-25.5,-37]) basePlate();
-        //translate([-9,-21,-37]) frontPlate();
-        //translate([15,-21,-37]) backPlate();
-        assembly(true);
-    }
-}
-
-/*uncomment to print topplate or bearing set
+Example:
+import("camBotA.stl");
 */
-rotate([0,180,0]){
-    rotate([0,90,0]){
-        //rotate([0,-90,0]) translate([28,35,-19]) topPlate();
-        //front bearing add 2 
-        //bearingSet(2);
-        //back bearing
-        //bearingSet(0);
-    }
-}
 
-module bearingSet(h){
-    for(i=[0:5]){
-        translate([0,i*20,0]) {
-            difference(){
-                bearing(h);
-                cube([34,8.5,4.5], center=true);
-            }
+/*
+uncomment the follow assembly methods to view full assembly of a cam and the frame
+*/
+//assembledcam();
+assembly();
+
+/*
+Print lift pins
+n = number to print
+*/
+module printSingleLiftPin(n){
+    for(i=[0:n-1]){
+        x = i*20;
+        if(i%2==0){
+            translate([x,0,0]) rotate([90,0,0]) liftPin(.4);
+        }else{
+            translate([x,-15,0]) rotate([90,0,0]) liftPin(.4);
         }
     }
 }
 
-//potCoupler();
-//translate([17,0,0]) bearingCoupler();
-
-module bearingCoupler(){
-	translate([0,0,5]) cylinder(d=5.1, h=2.5, $fn=40);
-	translate([0,0,7.5]) cylinder(d1=5.0, d2=4.8, h=12.5, $fn=40);
- 	difference(){
-	  cylinder(d=12, h=5, $fn=40);
-	  cube([8.5,4.5,7.5], center=true);	
-  	}
-}
-
-module potCoupler(){
- 	difference(){
-	union(){
-	  cylinder(d=12, h=5, $fn=40);
-	  translate([0,0,4]) cylinder(d=8.5, h=11, $fn=40);
-}
-	  cube([8.5,4.5,7.5], center=true);	
-		translate([0,0,5]) {
-		  difference(){
-			color("blue") cylinder(d=6.15, h=20, $fn=40);
-		  	translate([0,3,2]) cube([8,1.5,4.5], center=true);	
-		  }
-		}
-  	  }
-}
-
-translate([-10,10,2]) printLiftPins(8);
-module printLiftPins(n){
-
-	//rotate([0,90,0]) centerLiftPin(.4, 30, 0, false);
-    //translate([x,3,0]) if(short) liftPin(pin_rad,print);
-
+/*
+Print long lift pins
+n = number to print
+*/
+module printLongLiftPins(n){
     for(i=[0:n-1]){
         x = i*8;
         if(i%2==0){
@@ -165,26 +62,51 @@ module printLiftPins(n){
         }
     }
 }
-//printCamaxel(6);
-module printCamaxel(n){
+/*
+Print cam shafts
+n = number to print
+*/
+module printCamshaft(n){
     for(i=[0:n-1]){
         x = i*8;
         if(i%2==0){
-            translate([0,x,0]) camaxel();
+            translate([0,x,0]) camshaft();
         }else{
-            translate([58,x-8,0]) camaxel();
+            translate([58,x-8,0]) camshaft();
         }
     }
 }
-
-//assembly(true);
-module assembly(pins){
-	p = false;//print
-    //cams
-    %camset(true);
-    %translate([0,-19,25]) camset(true);
-    %translate([0,20,25]) camset(true);
-    //
+/*
+Creates a printable top plate.
+*/
+module printTopPlate(){
+    rotate([0,180,0]) difference(){
+        rotate([0,0,0]) coverplate(true);
+        translate([-18,0,0]) rotate([0,0,0]) frontplate(.8);
+        translate([15,0,0]) rotate([0,0,0]) backplate(.8);
+    }
+}
+/*
+Creates a printable base plate.
+*/
+module printBasePlate(){
+    difference(){
+        baseplate(true);
+        translate([-18,0,0]) rotate([0,0,0]) frontplate(.8);
+        translate([15,0,0]) rotate([0,0,0]) backplate(.8);
+    }
+}
+/*
+This is a view of an assembled cam.  Rendering the actual cams takes a long time, so it is easier to use the stl file for positioning and placement of pins and supporting frame.  Use this to make alignment adjustments, etc.
+*/
+module assembledcam(){
+	import("braille_display_allcams.stl");
+}
+/*
+A view of the entire assembly.
+p = to pass on the print boolean used by pin modules
+*/
+module assembly(p=true){
     // Center Pins
     centerPins(-11.9, 13.2, 180, p);
     centerPins(13.9,13.2, 0, p);
@@ -193,41 +115,61 @@ module assembly(pins){
     edgePins(6,41.5,true,p);
     edgePins(19.9,41.5,false,p);
 
-   /* 
-rotate([0,180,0]) difference(){
 	rotate([0,0,0]) coverplate(true);
-	//baseplate(true);
-	translate([-18,0,0]) rotate([0,0,0]) frontplate(.8);
-	translate([15,0,0]) rotate([0,0,0]) backplate(.8);
+	baseplate(true);
+	translate([-18,0,0]) rotate([0,0,0]) frontplate();
+	translate([15,0,0]) rotate([0,0,0]) backplate();
+
+    //Using this for quick spacing eye check, leave commented out.
+    //translate([-20,0,0]) color("red") cube([20,20,20]);
 }
+/*
+All cams positioning wholes to be used with front and back plates.
 */
-	//rotate([0,0,0]) coverplate(true);
-//	baseplate(true);
-//	translate([-18,0,0]) rotate([0,0,0]) frontplate();
-//	translate([15,0,0]) rotate([0,0,0]) backplate();
-
-//translate([-20,0,0]) color("red") cube([20,20,20]);
+module camset(){
+    //rotary pot
+    translate([15,7.65,0]) {
+        translate([0,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
+        translate([-50,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
+        translate([-21,0,0]) cube([5,13,14], center=true);
+    }
+    //bearing
+    translate([0,-7.25,0]) {
+		translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
+		translate([0,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
+		translate([33,0,0]) cube([5,13,14], center=true);
+	}
 }
 
+/*
+The front plate for the display with rotary pot and bearing slots differenced out.
+pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
+*/
 module frontplate(pad = 0){
 	difference(){
 		translate([-5,0,14]) color("green") cube([5+pad,96+pad,58], center=true);
-		camset(true);
-    	translate([0,-19,25]) camset(true);
-    	translate([0,20,25]) camset(true);
+		camset();
+    	translate([0,-19,25]) camset();
+    	translate([0,20,25]) camset();
 	}
 }
+/*
+The back plate for the display with rotary pot and bearing slots differenced out.
+pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
+*/
 
 module backplate(pad = 0){
 	difference(){
 		translate([32,0,14]) color("green") cube([5+pad,96+pad,58], center=true);
-		camset(true);
-    	translate([0,-19,25]) camset(true);
-    	translate([0,20,25]) camset(true);
+		camset();
+    	translate([0,-19,25]) camset();
+    	translate([0,20,25]) camset();
 	}
 }
-
-module coverplate(p){
+/*
+The coverplate for the display with all pins differenced out.
+*/
+module coverplate(print=true){
 	difference(){
 	  translate([12,0,42]) color("blue") cube([78,100,5], center=true);
 	  centerPins(-11.9, 13.2, 180, p);
@@ -236,7 +178,10 @@ module coverplate(p){
 	  edgePins(19.9,41.5,false,p);
 	}
 }
-module baseplate(p){
+/*
+The baseplate for the display with all pins differenced out.
+*/
+module baseplate(print=true){
 	difference(){
 	  translate([12,0,-13.5]) color("blue") cube([78,100,5], center=true);
 	  centerPins(-11.9, 13.2, 180, p);
@@ -244,32 +189,17 @@ module baseplate(p){
 	}
 }
 
-module camaxel(){
+
+module camshaft(){
         color("blue") translate([0,0,0]) cube([49.5,8.5,4.5]);
 }
-
-module camset(stagger){
-    if(stagger){
-        translate([15,7.65,0]) {
-			cam();
-			translate([0,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
-			translate([-50,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
-			translate([-21,0,0]) cube([5,13,14], center=true);
-		}
-    }else{
-        translate([0,0,0]) cam();
-    }
-    translate([0,-7.25,0]) {
-		cam();
-		translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
-		translate([0,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
-		translate([33,0,0]) cube([5,13,14], center=true);
-	}
-}
-
-module cam(){
-	import("braille_display_allcams.stl");
-}
+/*
+Displays 8 center lift pins arranged according to braille standard
+loc = moves pin +/- along the x axis
+z = moves pin +/i along hte z axis
+r = rotates pinset along the z axis
+print = if true, adds padding to either side of support edge of pins.  Set to true when using to difference insets from top plate.
+*/
 
 module centerPins(loc=0,z=0, r=0, print=false){
 	rotate([0,0,r]){
@@ -281,6 +211,13 @@ module centerPins(loc=0,z=0, r=0, print=false){
   		}
     }
 }
+/*
+Displays 8 short or long lift pins arranged according to braille standard
+loc = moves pin +/- along the x axis
+z = moves pin +/i along hte z axis
+short = true for short pint, false for long pin
+print = if true, adds padding to either side of support edge of pins.  Set to true when using to difference insets from top plate.
+*/
 
 module edgePins(loc=0,z=0,short=true,print=true){
     translate([loc,0,z]){
@@ -296,6 +233,9 @@ module edgePins(loc=0,z=0,short=true,print=true){
     }
 }
 
+/*
+Lift pin used in center, with base mount
+*/
 module centerLiftPin(pinRadius, height, gap=0, print=false){
     translate([0,.75,height]) {
 		rotate([0,90,0]) color("green") cylinder(r=.85, h=2, $fn=40);
@@ -315,6 +255,9 @@ module centerLiftPin(pinRadius, height, gap=0, print=false){
     //translate([0,.75,0]) rotate([0,90,0]) cylinder(r=.75, h=2, $fn=40);
 }
 
+/*
+Lift pins with lift cam in outer position.
+*/
 module liftPinLong(pinRadius, print=false){
     rotate([90,0,0]){
         h = 1.85;
@@ -347,7 +290,9 @@ hull(){
 	}
     }
 }
-
+/*
+Lift pins with lift cam in inner position
+*/
 module liftPin(pinRadius, print=false){
     rotate([90,0,0]){
         h = 1.9;
@@ -369,85 +314,35 @@ module liftPin(pinRadius, print=false){
     }
 }
 
-
-
-//stl's must be commented out to use this assembly for unions(diffs)
-module assembly2(pins){
-    //translate([1,4.75,3.5]) rotate([-90,0,0]) liftPin(.4);
-    import("braille_display_allcams.stl");
-    translate([0,-15.5,0]) import("braille_display_allcams.stl");
-    //color("blue") translate([-13,-4.5,-2.5]) cube([34,8.5,4.5]);
-    //translate([-10,0,0]) bearing();
-    //translate([15,0,0]) bearing();
-    if(pins){
-      rotate([90,0,90]){
-       translate([-20,16.5,0]){
-            liftPin(pin_rad);
-            translate([0,0,3]) liftPin(pin_rad);
-            translate([0,0,7]) liftPin(pin_rad);
-            translate([0,0,10]) liftPin(pin_rad);
-        }
-    }
-    }
-    translate([0,27,0]){
-        import("braille_display_allcams.stl");
-        translate([0,15.5,0]) import("braille_display_allcams.stl");
-        //color("blue") translate([-13,-4.5,-2.5]) cube([34,8.5,4.5]);
-        //translate([-10,0,0]) bearing();
-        //translate([15,0,0]) bearing();
-       if(pins){
-            rotate([90,0,270]){
-            translate([-20,16.5,-12]){
-                doubleLiftPin(pin_rad);
-                translate([0,0,3]) doubleLiftPin(pin_rad);
-                translate([0,0,7]) doubleLiftPin(pin_rad);
-                translate([0,0,10]) doubleLiftPin(pin_rad);
-            }
-        }
-       }
-    }
-    translate([0,16,-23]){
-        translate([0,11.5,0]) import("braille_display_allcams.stl");
-        translate([-15,-4,0]) import("braille_display_allcams.stl");
-        //color("blue") translate([-13,-4.5,-2.5]) cube([34,8.5,4.5]);
-        //translate([-10,0,0]) bearing(10);
-        //translate([15,0,0]) bearing();
-        /* not using centerbridge...*/
-        translate([-9,-3.5,14]) {
-            /*difference(){
-                translate([0,1,0]) centerPinBridge();
-                translate([9,2.5,-4.5]){
-                    translate([-.5,-.5,0]) centerLiftPin(.4,30,1);
-                    translate([2.5,-.5,0]) centerLiftPin(.4,30,1);
-                    translate([6.5,-.5,0]) centerLiftPin(.4,30,1);
-                    translate([9.5,-.5,0]) centerLiftPin(.4,30,1);
-                }
-            }*/
-            /*translate([9,2.5,-4.5]){
-                translate([0,0,0]) centerLiftPin(.4,30);
-                translate([3,0,0]) centerLiftPin(.4,30);
-                translate([7,0,0]) centerLiftPin(.4,30);
-                translate([10,0,0]) centerLiftPin(.4,30);
-            }*/
-        }
-    }
-    //translate([-9,-21,-37]) frontPlate();
-    //translate([15,-21,-37]) backPlate();
-    //translate([-15,-25.5,-37]) basePlate();
-    //translate([-15,-25.5,16]) basePlate();
+/*
+A coupler for connecting the cam shaft to the bearing insert
+*/
+module bearingCoupler(){
+	translate([0,0,5]) cylinder(d=5.1, h=2.5, $fn=40);
+	translate([0,0,7.5]) cylinder(d1=5.0, d2=4.8, h=12.5, $fn=40);
+ 	difference(){
+	  cylinder(d=12, h=5, $fn=40);
+	  cube([8.5,4.5,7.5], center=true);	
+  	}
 }
 
-module motorAdapter(){
-    difference(){
-       //translate([-9,-21,-30]) frontPlate();
-        //translate([15,-21,-30]) backPlate();
-        translate([-12,0,0]) bearing();
-        color("blue") translate([-41,-4,-2]) cube([34,8,4]);
-        rotate([0,90,0]) cylinder(13, 2.25, 2.5, true, $fn=40);
-    }
+/*
+A coupler for connecting the rotary pot to the cam shaft
+*/
+module potCoupler(){
+ 	difference(){
+	union(){
+	  cylinder(d=12, h=5, $fn=40);
+	  translate([0,0,4]) cylinder(d=8.5, h=11, $fn=40);
 }
-module centerPinBridge(){
-    color("orange") cube([30,4.5,9.8]);
+	  cube([8.5,4.5,7.5], center=true);	
+		translate([0,0,5]) {
+		  difference(){
+			color("blue") cylinder(d=6.15, h=20, $fn=40);
+		  	translate([0,3,2]) cube([8,1.5,4.5], center=true);	
+		  }
+		}
+  	  }
 }
 
 module frontPlate(){
@@ -460,150 +355,4 @@ module backPlate(){
 
 module basePlate(){
     color("orange") cube([40, 80, 2]);
-}
-
-module bearing(h){
-    rotate([0,90,0]) cylinder(r=bearing_radius, h=bearing_height + h, $fn=40);      //added 2 to bearing height for print          
-}
-
-module mountingPlate(){
-    difference(){
-        plateBuild();
-        liftPinInsetGroup(1);
-        translate([0,7,0]) liftPinInsetGroup(1);
-    }
-}
-
-module plateBuild(){
-        translate([0,-6.5,0]) cube([71,20,4]);
-        translate([34,-6.5,3]) cube([3,20,7]);
-}
-
-module liftPinInset(){
-    difference(){
-        cube([30.5,csz*2,csz]);
-        //translate([37,-.2,-.5]) rotate([0,0,85]) cube([2.5,2,2.5]);
-    }
-    translate([32,-5.5,0]) {
-        rotate([0,0,85]) cube([12,2.5,2.5]);
-    }
-}
-
-module doubleLiftPin(pinRadius){
-    liftPin(pinRadius);
-    translate([-15,-25,0]) cube([4,25,2]);
-    translate([0,-23,0]){
-        translate([2,-1,0]) rotate([0,0,340]) cube([17,2,2]);
-        translate([18,-7,0]) {
-            cube([28,2,2]);
-            translate([2,0,0]) cylinder(r=1, h=2, $fn=40);
-            translate([22.5,0,0]) cylinder(r=1, h=2, $fn=40);
-        }
-        translate([32,-7,0]) {
-            rotate([0,0,85]) cube([30,2,2]);
-            translate([1.5,35,1]) rotate([90,0,-5]) cylinder(r=pinRadius, h=5, $fn=40);
-        }
-    }
-}
-
-
-module centerLiftPin2(pinRadius, height){
-    translate([.75,.75,height]) cylinder(r=pinRadius, h=2, $fn=40);
-    cube([1.5,1.5,height]);
-    translate([0,-.75,0]) cube([4,3,2]);
-    translate([0,.75,0]) rotate([0,90,0]) cylinder(r=1.5, h=1.5, $fn=40);
-}
-
-module centerLifPinInset(){
-    
-}
-
-module noarc(h){
-    cube([13,2,h]);
-    translate([3,0,0]) cylinder(r=1, h=h, $fn=40);
-}
-
-module arc(){
-    difference(){
-        cylinder(r=8, h=2, $fn=40);
-        translate([0,-2.2,-.5]) cylinder(r=8.3, h=3, $fn=40);
-        translate([-9,-8,-.5]) cube([17,12,3]);
-    }
-    translate([0,6,0]) cylinder(r=1, h=2, $fn=40);
-}
-
-module curvePin(){
-    //cube([20,20,0]);
-    cube([2,18,2]);
-    difference(){
-    translate([0,22,0]) cylinder(r=5, h=2, $fn=40);
-    translate([-4,22,-.1]) cylinder(r=4, h=2.2, $fn=40);
-    translate([-10,0,0]) cube([10,28,2]);
-    }
-}
-
-
-
-
-
-module liftPinPlate(){
-    startX = 4;
-    startY = 3;
-    pinHeight = 2;
-
-    difference(){
-        cube([17,14.5,1]);
-        for(i=[0:2]){
-            for(j=[0:0]){
-                translate([startX+i*2.5,startY,0]) dividerGrid();
-            }
-        }
-    }
-    translate([startX,startY,0]) {
-        singleCell(0.8, pinHeight);
-    }
-    translate([startX,startY+6,0]) singleCell(0.8, pinHeight);
-}
-
-module singleCell(pinRadius, pinHeight){
-    for (i=[0 : 2]) {
-        for(j=[0:1]){
-            translate([2.5*i,2.5*j,0]) color("green") cylinder(r=pinRadius, h=pinHeight, $fn=40);
-        }
-    }
-}
-
-module dividerGrid(){
-    translate([-1.0,-2.5,-1.25]) cube([.2,3.5,5]);
-    translate([0.8,-2.5,-1.25]) cube([.2,3.5,5]);
-    translate([-1.0,.8,-1.25]) cube([2.0,.2,5]);
-    //right side
-    translate([-1.0,1.5,-1.25]) cube([.2,3.5,5]);
-    translate([0.8,1.5,-1.25]) cube([.2,3.5,5]);
-    translate([-1.0,1.5,-1.25]) cube([2.0,.2,5]);
-}
-
-//MISC STUFF
-
-module flexarm(){
-    cube([12,3,2]);
-    translate([1,0,0]) cube([0.3,9,2]);
-    translate([6,0,0]) cube([0.3,9,2]);
-    translate([11,0,0]) cube([0.3,9,2]);
-    translate([0,6,0]) cube([12,3,2]);
-}
-
-module swingarm(){
-    translate([0,-1,0]) {
-        cube([5,1,2.5]);
-        translate([4,0,0]) {
-            rotate([0,0,-15]) cube([12,1,2.5]);
-            translate([12,-3.3,0]){
-                rotate([0,0,70]) {
-                    cube([5,1,2.5]);
-                    translate([5,0,0]) rotate([0,0,20]) cube([5,1,2.5]);
-                }
-            }
-        }
-    }
 }
