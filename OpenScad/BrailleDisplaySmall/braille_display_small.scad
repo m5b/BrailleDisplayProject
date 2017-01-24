@@ -1,5 +1,3 @@
-// TODO Re-align padding for cover plate subtraction as well.
-
 //some globals that help with pin adjustment, not even sure if I use them anymore!
 width=80;
 bearing_radius = 8;//11.8;
@@ -110,17 +108,17 @@ p = to pass on the print boolean used by pin modules
 */
 module assembly(p=true){
     // Center Pins
-    centerPins(-11.9, 13.2, 180, p);
-    centerPins(13.9,13.2, 0, p);
+    //centerPins(-11.9, 13.2, 180, p);
+    //centerPins(13.9,13.2, 0, p);
 
     // Edge Pins
-    edgePins(6,41.5,true,p);
-    edgePins(19.9,41.5,false,p);
+    //edgePins(6,41.5,true,p);
+    //edgePins(19.9,41.5,false,p);
 
-	//rotate([0,0,0]) coverplate(true);
+	rotate([0,0,0]) coverplate(true);
 	//baseplate(true);
-	//translate([-18,0,0]) rotate([0,0,0]) frontplate();
-	//translate([15,0,0]) rotate([0,0,0]) backplate();
+	translate([-18,0,0]) rotate([0,0,0]) frontplate();
+	translate([15,0,0]) rotate([0,0,0]) backplate();
 
     //Using this for quick spacing eye check, leave commented out.
     //translate([-20,0,0]) color("red") cube([20,20,20]);
@@ -144,6 +142,20 @@ module camset(){
 }
 
 /*
+Latches to be embedded onto the front and back plates for locking down the cover plate.
+*/
+module plateLatch() {
+    latchRadius = 1.4;
+    color("magenta")
+    rotate([90, 0, 0]) {
+        cylinder(r=latchRadius, h=96, $fn=40);
+        
+        translate([0, -3, 0])
+            cylinder(r=latchRadius, h=96, $fn=40);
+    }
+}
+
+/*
 The front plate for the display with rotary pot and bearing slots differenced out.
 pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
 */
@@ -154,31 +166,66 @@ module frontplate(pad = 0){
     	translate([0,-19,25]) camset();
     	translate([0,20,25]) camset();
 	}
+
+    // Latches
+    translate([-7.5, 48, 37.5]) {
+        plateLatch();
+    }
 }
 /*
 The back plate for the display with rotary pot and bearing slots differenced out.
 pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
 */
-
 module backplate(pad = 0){
 	difference(){
-		translate([32,0,14]) color("green") cube([5+pad,96+pad,58], center=true);
+		translate([32,0,14]) color("cyan") cube([5+pad,96+pad,58], center=true);
 		camset();
     	translate([0,-19,25]) camset();
     	translate([0,20,25]) camset();
 	}
+
+    // Latches
+    translate([34.5, 48, 37.5]) {
+        plateLatch();
+    }
 }
 /*
 The coverplate for the display with all pins differenced out.
 */
 module coverplate(print=true){
+    // The cover plate itself
 	difference(){
-	  translate([12,0,42]) color("blue") cube([78,100,5], center=true);
+	  translate([12,0,42]) color("blue") cube([82,100,5], center=true);
 	  centerPins(-11.9, 13.2, 180, print);
 	  centerPins(13.9,13.2, 0, print);
 	  edgePins(6,41.5,true,print);
 	  edgePins(19.9,41.5,false,print);
 	}
+
+    // Side latches
+    module coverLatch() {
+        latchRadius = 1.25;
+
+        cube([1.5, 100, 3.5]);
+        translate([latchRadius, 0, 0]) {
+            rotate([270, 0, 0]) {
+                cylinder(h=100, r=latchRadius, $fn=40);
+            }
+        }
+    }
+
+    color("yellow")
+    union() {
+        translate([-29, -50, 36]) {
+            coverLatch();
+        }
+
+        translate([53, 50, 36]) {
+            rotate([0, 0, 180]) {
+                coverLatch();
+            }
+        }
+    }
 }
 /*
 The baseplate for the display with all pins differenced out.
@@ -250,7 +297,8 @@ module centerLiftPin(pinRadius, height, print=false){
     hull() {
         translate([0,.75,height - 0.75]) {
             rotate([0,90,0]) color("green") cylinder(r=.85, h=thickness, $fn=40);
-            if(print) translate([1,0,-1]) cube([2,6,5],center=true);
+            if(print) translate([0.925,0,0]) 
+                cube([2.5,6,6],center=true); // Poke through the cover plate for braille pins
         }
         cube([thickness,1.5,height - 0.75]);
     }
@@ -263,8 +311,6 @@ module centerLiftPin(pinRadius, height, print=false){
     		translate([-.2,-.2,-1]) cube([2.3,20.4,4]);
 		}
 	}
-
-    //translate([0,.75,0]) rotate([0,90,0]) cylinder(r=.75, h=2, $fn=40);
 }
 
 /*
