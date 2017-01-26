@@ -116,7 +116,7 @@ module assembly(p=true){
     //edgePins(19.9,41.5,false,p);
 
 	rotate([0,0,0]) coverplate(true);
-	//baseplate(true);
+	baseplate(true);
 	translate([-18,0,0]) rotate([0,0,0]) frontplate();
 	translate([15,0,0]) rotate([0,0,0]) backplate();
 
@@ -143,15 +143,19 @@ module camset(){
 
 /*
 Latches to be embedded onto the front and back plates for locking down the cover plate.
+
+@param dual: creates two locks rather than one
 */
-module plateLatch() {
+module plateLatch(dual=false) {
     latchRadius = 1.4;
     color("magenta")
     rotate([90, 0, 0]) {
         cylinder(r=latchRadius, h=96, $fn=40);
         
-        translate([0, -3, 0])
-            cylinder(r=latchRadius, h=96, $fn=40);
+        if (dual) {
+            translate([0, -3, 0])
+                cylinder(r=latchRadius, h=96, $fn=40);
+        }
     }
 }
 
@@ -169,6 +173,9 @@ module frontplate(pad = 0){
 
     // Latches
     translate([-7.5, 48, 37.5]) {
+        plateLatch(dual=true);
+    }
+    translate([-7.5, 48, -9.5]) {
         plateLatch();
     }
 }
@@ -186,9 +193,27 @@ module backplate(pad = 0){
 
     // Latches
     translate([34.5, 48, 37.5]) {
+        plateLatch(dual=true);
+    }
+    translate([34.5, 48, -9.5]) {
         plateLatch();
     }
 }
+
+/* 
+Side latches for cover and base plates
+*/
+module coverLatch(height=3.5) {
+    latchRadius = 1.25;
+
+    cube([1.5, 100, height]);
+    translate([latchRadius, 0, 0]) {
+        rotate([270, 0, 0]) {
+            cylinder(h=100, r=latchRadius, $fn=40);
+        }
+    }
+}
+
 /*
 The coverplate for the display with all pins differenced out.
 */
@@ -202,18 +227,9 @@ module coverplate(print=true){
 	  edgePins(19.9,41.5,false,print);
 	}
 
+
+
     // Side latches
-    module coverLatch() {
-        latchRadius = 1.25;
-
-        cube([1.5, 100, 3.5]);
-        translate([latchRadius, 0, 0]) {
-            rotate([270, 0, 0]) {
-                cylinder(h=100, r=latchRadius, $fn=40);
-            }
-        }
-    }
-
     color("yellow")
     union() {
         translate([-29, -50, 36]) {
@@ -231,11 +247,28 @@ module coverplate(print=true){
 The baseplate for the display with all pins differenced out.
 */
 module baseplate(print=true){
+    // The base plate itself
 	difference(){
-	  translate([12,0,-13.5]) color("blue") cube([78,100,5], center=true);
+	  translate([12,0,-13.5]) color("blue") cube([82,100,5], center=true);
 	  centerPins(-11.9, 13.2, 180, print);
 	  centerPins(13.9,13.2, 0, print);
 	}
+
+    // Side latches
+    color("yellow")
+    union() {
+        translate([-29, 50, -8]) {
+            rotate([0, 180, 180]) {
+                coverLatch(height=3);
+            }
+        }
+
+        translate([53, -50, -8]) {
+            rotate([0, 180, 0]) {
+                coverLatch(height=3);
+            }
+        }
+    }
 }
 
 
