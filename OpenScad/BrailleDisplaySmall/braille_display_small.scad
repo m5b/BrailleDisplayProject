@@ -173,7 +173,7 @@ module frontplate(pad = 0){
 
     // Latches
     translate([-7.5, 48, 37.5]) {
-        plateLatch(dual=true);
+        plateLatch();
     }
     translate([-7.5, 48, -9.5]) {
         plateLatch();
@@ -193,7 +193,7 @@ module backplate(pad = 0){
 
     // Latches
     translate([34.5, 48, 37.5]) {
-        plateLatch(dual=true);
+        plateLatch();
     }
     translate([34.5, 48, -9.5]) {
         plateLatch();
