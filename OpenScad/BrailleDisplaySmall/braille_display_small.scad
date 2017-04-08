@@ -100,7 +100,7 @@ module printBasePlate(){
 This is a view of an assembled cam.  Rendering the actual cams takes a long time, so it is easier to use the stl file for positioning and placement of pins and supporting frame.  Use this to make alignment adjustments, etc.
 */
 module assembledcam(){
-	import("braille_display_allcams.stl");
+    import("braille_display_allcams.stl");
 }
 /*
 A view of the entire assembly.
@@ -115,10 +115,10 @@ module assembly(p=true){
     //edgePins(6,41.5,true,p);
     //edgePins(19.9,41.5,false,p);
 
-	rotate([0,0,0]) coverplate(true);
-	baseplate(true);
-	translate([-18,0,0]) rotate([0,0,0]) frontplate();
-	translate([15,0,0]) rotate([0,0,0]) backplate();
+    rotate([0,0,0]) coverplate(true);
+    baseplate(true);
+    translate([-18,0,0]) rotate([0,0,0]) frontplate();
+    translate([15,0,0]) rotate([0,0,0]) backplate();
 
     //Using this for quick spacing eye check, leave commented out.
     //translate([-20,0,0]) color("red") cube([20,20,20]);
@@ -135,10 +135,10 @@ module camset(){
     }
     //bearing
     translate([0,-7.25,0]) {
-		translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
-		translate([0,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
-		translate([33,0,0]) cube([5,13,14], center=true);
-	}
+        translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
+        translate([0,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
+        translate([33,0,0]) cube([5,13,14], center=true);
+    }
 }
 
 /*
@@ -151,7 +151,7 @@ module plateLatch(dual=false) {
     color("magenta")
     rotate([90, 0, 0]) {
         cylinder(r=latchRadius, h=96, $fn=40);
-        
+
         if (dual) {
             translate([0, -3, 0])
                 cylinder(r=latchRadius, h=96, $fn=40);
@@ -164,12 +164,12 @@ The front plate for the display with rotary pot and bearing slots differenced ou
 pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
 */
 module frontplate(pad = 0){
-	difference(){
-		translate([-5,0,14]) color("green") cube([5+pad,96+pad,58], center=true);
-		camset();
-    	translate([0,-19,25]) camset();
-    	translate([0,20,25]) camset();
-	}
+    difference(){
+        translate([-5,0,14]) color("green") cube([5+pad,96+pad,58], center=true);
+        camset();
+        translate([0,-19,25]) camset();
+        translate([0,20,25]) camset();
+    }
 
     // Latches
     translate([-7.5, 48, 37.5]) {
@@ -184,12 +184,12 @@ The back plate for the display with rotary pot and bearing slots differenced out
 pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
 */
 module backplate(pad = 0){
-	difference(){
-		translate([32,0,14]) color("cyan") cube([5+pad,96+pad,58], center=true);
-		camset();
-    	translate([0,-19,25]) camset();
-    	translate([0,20,25]) camset();
-	}
+    difference(){
+        translate([32,0,14]) color("cyan") cube([5+pad,96+pad,58], center=true);
+        camset();
+        translate([0,-19,25]) camset();
+        translate([0,20,25]) camset();
+    }
 
     // Latches
     translate([34.5, 48, 37.5]) {
@@ -200,7 +200,7 @@ module backplate(pad = 0){
     }
 }
 
-/* 
+/*
 Side latches for cover and base plates
 */
 module coverLatch(height=3.5) {
@@ -219,13 +219,13 @@ The coverplate for the display with all pins differenced out.
 */
 module coverplate(print=true){
     // The cover plate itself
-	difference(){
-	  translate([12,0,42]) color("blue") cube([82,100,5], center=true);
-	  centerPins(-11.9, 13.2, 180, print);
-	  centerPins(13.9,13.2, 0, print);
-	  edgePins(6,41.5,true,print);
-	  edgePins(19.9,41.5,false,print);
-	}
+    difference(){
+      translate([12,0,42]) color("blue") cube([82,100,5], center=true);
+      centerPins(-11.9, 13.2, 180, print);
+      centerPins(13.9,13.2, 0, print);
+      edgePins(6,41.5,true,print);
+      edgePins(19.9,41.5,false,print);
+    }
 
 
 
@@ -248,11 +248,11 @@ The baseplate for the display with all pins differenced out.
 */
 module baseplate(print=true){
     // The base plate itself
-	difference(){
-	  translate([12,0,-13.5]) color("blue") cube([82,100,5], center=true);
-	  centerPins(-11.9, 13.2, 180, print);
-	  centerPins(13.9,13.2, 0, print);
-	}
+    difference(){
+      translate([12,0,-13.5]) color("blue") cube([82,100,5], center=true);
+      centerPins(-11.9, 13.2, 180, print);
+      centerPins(13.9,13.2, 0, print);
+    }
 
     // Side latches
     color("yellow")
@@ -284,17 +284,17 @@ print = if true, adds padding to either side of support edge of pins.  Set to tr
 */
 
 module centerPins(loc=0,z=0, r=0, print=false){
-	rotate([0,0,r]){
+    rotate([0,0,r]){
 
         // Apparently there is slight misalignment that happens on the rotated pieces...
         xOffset = r == 0 ? 0 : 0.05;
 
-	  	translate([loc + xOffset,-.75,z]){
-		  translate([0,0,0])  centerLiftPin(.4, 30, print);
-		  translate([3,0,0])  centerLiftPin(.4, 30, print);
-		  translate([7,0,0])  centerLiftPin(.4, 30, print);
-		  translate([10,0,0]) centerLiftPin(.4, 30, print);
-  		}
+        translate([loc + xOffset,-.75,z]){
+          translate([0,0,0])  centerLiftPin(.4, 30, print);
+          translate([3,0,0])  centerLiftPin(.4, 30, print);
+          translate([7,0,0])  centerLiftPin(.4, 30, print);
+          translate([10,0,0]) centerLiftPin(.4, 30, print);
+        }
     }
 }
 /*
@@ -312,7 +312,7 @@ module edgePins(loc=0,z=0,short=true,print=true){
             rotate([0,0,i*90]){
                 // Apparently there is slight misalignment that happens on the rotated pieces...
                 yOffset = i == 3 ?-0.15 : 0;
-            	translate([x,3 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
+                translate([x,3 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
                 translate([x,6 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
                 translate([x,-1 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
                 translate([x,-4 + yOffset,0]) if(short) liftPin(pin_rad,print); else liftPinLong(pin_rad,print);
@@ -330,7 +330,7 @@ module centerLiftPin(pinRadius, height, print=false){
     hull() {
         translate([0,.75,height - 0.75]) {
             rotate([0,90,0]) color("green") cylinder(r=.85, h=thickness, $fn=40);
-            if(print) translate([0.925,0,0]) 
+            if(print) translate([0.925,0,0])
                 cube([2.5,6,6],center=true); // Poke through the cover plate for braille pins
         }
         cube([thickness,1.5,height - 0.75]);
@@ -339,11 +339,11 @@ module centerLiftPin(pinRadius, height, print=false){
     translate([0,-7,-2.7]) rotate([0,90,0])  cylinder(r=2, h=thickness, $fn=40);
     translate([0,-21,-24.5]) cube([thickness,4,21]);
     translate([0,-21,-27]){
-		 cube([thickness,20,3]);
-		 if(print){
-    		translate([-.2,-.2,-1]) cube([2.3,20.4,4]);
-		}
-	}
+         cube([thickness,20,3]);
+         if(print){
+            translate([-.2,-.2,-1]) cube([2.3,20.4,4]);
+        }
+    }
 }
 
 /*
@@ -353,33 +353,33 @@ module liftPinLong(pinRadius, print=false){
     rotate([90,0,0]){
         h = 1.85;
 
-	translate([-15,0,0]) 
-	{
-		cube([43.5,2,h]);
-		if(print){
-			translate([-.2,-2,-.2]) cube([43.9,4,2.3]);
-		}
-		//joint
-		translate([0,-2,0]) cube([5,2,h]);
-		//down arm
-		translate([4,-2,0]) rotate([0,0,340]) cube([15,2,h]);
+    translate([-15,0,0])
+    {
+        cube([43.5,2,h]);
+        if(print){
+            translate([-.2,-2,-.2]) cube([43.9,4,2.3]);
+        }
+        //joint
+        translate([0,-2,0]) cube([5,2,h]);
+        //down arm
+        translate([4,-2,0]) rotate([0,0,340]) cube([15,2,h]);
 
-		//lobe arm
-		translate([18,-7,0]) {
-		    cube([28,2,h]);
-		    //lift lobe
-		    translate([3,0,0]) cylinder(r=1, h=h, $fn=40);
-		}
-		//lift arm
-		translate([46,-7,0]) {
+        //lobe arm
+        translate([18,-7,0]) {
+            cube([28,2,h]);
+            //lift lobe
+            translate([3,0,0]) cylinder(r=1, h=h, $fn=40);
+        }
+        //lift arm
+        translate([46,-7,0]) {
             hull(){
                 color("red")
                 rotate([0,0,85]) cube([8,1.5,h]);
                 //pin lobe
                 translate([0,8,0]) color("green") cylinder(r=.85, h=h, $fn=40);
             }
-		}
-	}
+        }
+    }
     }
 }
 /*
@@ -390,9 +390,9 @@ module liftPin(pinRadius, print=false){
         h = 1.85;
 
         cube([28.5,2,h]);
-		if(print){
-			translate([-.2,-2,-.2]) cube([28.9,4,2.3]);
-		}
+        if(print){
+            translate([-.2,-2,-.2]) cube([28.9,4,2.3]);
+        }
         translate([0,-2,0]) cube([5,2,h]);
         translate([4,-2,0]) rotate([0,0,340]) cube([15,2,h]);
         translate([18,-7,0]) {
@@ -413,31 +413,31 @@ module liftPin(pinRadius, print=false){
 A coupler for connecting the cam shaft to the bearing insert
 */
 module bearingCoupler(){
-	translate([0,0,5]) cylinder(d=5.1, h=2.5, $fn=40);
-	translate([0,0,7.5]) cylinder(d1=5.0, d2=4.8, h=12.5, $fn=40);
- 	difference(){
-	  cylinder(d=12, h=5, $fn=40);
-	  cube([8.5,4.5,7.5], center=true);	
-  	}
+    translate([0,0,5]) cylinder(d=5.1, h=2.5, $fn=40);
+    translate([0,0,7.5]) cylinder(d1=5.0, d2=4.8, h=12.5, $fn=40);
+    difference(){
+      cylinder(d=12, h=5, $fn=40);
+      cube([8.5,4.5,7.5], center=true);
+    }
 }
 
 /*
 A coupler for connecting the rotary pot to the cam shaft
 */
 module potCoupler(){
- 	difference(){
-	union(){
-	  cylinder(d=12, h=5, $fn=40);
-	  translate([0,0,4]) cylinder(d=8.5, h=11, $fn=40);
+    difference(){
+    union(){
+      cylinder(d=12, h=5, $fn=40);
+      translate([0,0,4]) cylinder(d=8.5, h=11, $fn=40);
 }
-	  cube([8.5,4.5,7.5], center=true);	
-		translate([0,0,5]) {
-		  difference(){
-			color("blue") cylinder(d=6.15, h=20, $fn=40);
-		  	translate([0,3,2]) cube([8,1.5,4.5], center=true);	
-		  }
-		}
-  	  }
+      cube([8.5,4.5,7.5], center=true);
+        translate([0,0,5]) {
+          difference(){
+            color("blue") cylinder(d=6.15, h=20, $fn=40);
+            translate([0,3,2]) cube([8,1.5,4.5], center=true);
+          }
+        }
+      }
 }
 
 module frontPlate(){
