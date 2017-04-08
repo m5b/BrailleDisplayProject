@@ -1,15 +1,15 @@
-SHAFT_OUTER_DIAMETER_TOP = 7.0;
+SHAFT_OUTER_DIAMETER_TOP = 7.2;
 SHAFT_OUTER_DIAMETER_BOTTOM = 6.4;
 SHAFT_INNER_DIAMETER_TOP = 5.6;
-SHAFT_INNER_DIAMETER_BOTTOM = 4.8;
+SHAFT_INNER_DIAMETER_BOTTOM = 5.0;
 SHAFT_SCREW_BOLT_DIAMETER = 3;
 SHAFT_MOUNT_OUTER_DIAMETER = 10;
 SHAFT_MOUNT_INNER_DIAMETER = 7;
-SHAFT_LENGTH = 12;
-SHAFT_BASE_WIDTH = 3;
+SHAFT_LENGTH = 8;
+SHAFT_BASE_WIDTH = 4;
 
-print_tray();
-//preview();
+//print_tray();
+preview();
 
 /*
 Arrange the items on a tray for printing
@@ -26,10 +26,10 @@ Preview the coupling action in exploded view
 */
 module preview() {
     motor_shaft_mount();
-    translate([0, 0, SHAFT_LENGTH + SHAFT_BASE_WIDTH]) {
+    translate([0, 0, SHAFT_LENGTH + SHAFT_BASE_WIDTH + 5]) {
         coupler_receptor();
     }
-    translate([0, 0, SHAFT_LENGTH + 35]) {
+    translate([0, 0, SHAFT_LENGTH * 2 + SHAFT_BASE_WIDTH + 20 + 10]) {
         rotate([0, 180, 0]) {
             bearingCoupler();
         }
