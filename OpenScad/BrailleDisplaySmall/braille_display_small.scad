@@ -108,12 +108,12 @@ p = to pass on the print boolean used by pin modules
 */
 module assembly(p=true){
     // Center Pins
-    //centerPins(-11.9, 13.2, 180, p);
-    //centerPins(13.9,13.2, 0, p);
+    centerPins(-11.9, 13.2, 180, p);
+    centerPins(13.9,13.2, 0, p);
 
     // Edge Pins
-    //edgePins(6,41.5,true,p);
-    //edgePins(19.9,41.5,false,p);
+    edgePins(6,41.5,true,p);
+    edgePins(19.9,41.5,false,p);
 
     rotate([0,0,0]) coverplate(true);
     baseplate(true);
@@ -341,7 +341,8 @@ module centerLiftPin(pinRadius, height, print=false){
     translate([0,-21,-27]){
          cube([thickness,20,3]);
          if(print){
-            translate([-.2,-.2,-1]) cube([2.3,20.4,4]);
+            color("cyan")
+            translate([-.3,-.2,-1]) cube([2.5,20.4,4]);
         }
     }
 }
@@ -357,7 +358,8 @@ module liftPinLong(pinRadius, print=false){
     {
         cube([43.5,2,h]);
         if(print){
-            translate([-.2,-2,-.2]) cube([43.9,4,2.3]);
+            color("red")
+            translate([-.2,-2,-.3]) cube([43.9,4,2.5]);
         }
         //joint
         translate([0,-2,0]) cube([5,2,h]);
@@ -391,7 +393,8 @@ module liftPin(pinRadius, print=false){
 
         cube([28.5,2,h]);
         if(print){
-            translate([-.2,-2,-.2]) cube([28.9,4,2.3]);
+            color("gold")
+            translate([-.2,-2,-.3]) cube([28.9,4,2.5]);
         }
         translate([0,-2,0]) cube([5,2,h]);
         translate([4,-2,0]) rotate([0,0,340]) cube([15,2,h]);
