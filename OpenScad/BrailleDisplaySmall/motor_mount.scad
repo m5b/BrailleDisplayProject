@@ -15,8 +15,8 @@ MOUNT_SCREW_HOLE_OFFSET_FROM_BASE_X = 5;
 MOUNT_SCREW_HOLE_OFFSET_FROM_BASE_Y = (MOTOR_BASE_WIDTH - MOUNT_SCREW_HOLE_CENTER_TO_CENTER_DISTANCE) / 2;
 // ===================================
 
-//preview();
-motor_mount();
+preview();
+//motor_mount();
 
 module preview() {
     display_model();
@@ -34,6 +34,7 @@ module preview() {
             rotate([-90, 0, -90])
                 motor_model();
 
+    color("gold")
     translate([-26, -14.3, 51])
         rotate([0, 90, 0])
             motor_mount();
@@ -41,12 +42,19 @@ module preview() {
 
 
 module motor_mount() {
+    SLIM = false;
+
     difference() {
-        union() {
+        if (SLIM) {
+            union() {
+                translate([0, -2.5, 0])
+                    cube([23, 120, 3]);
+                translate([23, 16.5, 0])
+                    cube([28, 60, 3]);
+            }
+        } else {
             translate([0, -2.5, 0])
-                cube([23, 120, 3]);
-            translate([23, 16.5, 0])
-                cube([28, 60, 3]);
+                cube([51, 120, 3]);
         }
 
         translate([51, 14.3, 25.7]) {
