@@ -64,7 +64,7 @@ class ServoGroup {
         double ki = 0; // imo, integral should be ignored because the set point is jumping all over the place between 0 and 255.
         double kd = 6; // TODO: Find optimal D (Derivative) factor
 
-        PID servoPID[NUM_REGISTER];
+        PID *servoPID[NUM_REGISTER] = {0};
         double pidInput[NUM_REGISTER];      // Inputs to PID controllers to adjust their outputs
         double pidSetpoint[NUM_REGISTER];   // Setpoints to PID controllers to steer their outputs
         double pidOutput[NUM_REGISTER];     // Outputs of PID controllers.
@@ -83,9 +83,9 @@ class ServoGroup {
         ServoGroup(EncoderGroup* eg) {
             // Initialize PID instances for all servos
             for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
-                servoPID[i] = PID(&pidInput[i], &pidOutput[i], &pidSetpoint[i], kp, ki, kd, DIRECT);
-                servoPID[i].SetOutputLimits(90, 180);
-                servoPID[i].SetMode(AUTOMATIC);
+                servoPID[i] = new PID(&pidInput[i], &pidOutput[i], &pidSetpoint[i], kp, ki, kd, DIRECT);
+                servoPID[i]->SetOutputLimits(90, 180);
+                servoPID[i]->SetMode(AUTOMATIC);
 
                 servo[i] = Servo();
                 servo[i].attach(servoPin[i]);
@@ -113,11 +113,11 @@ class ServoGroup {
             // Compute next servo output and turn servo
             for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
                 pidInput[i] = encoderGroup->position[i];
-                servoPID[i].Compute();
+                servoPID[i]->Compute();
                 servo[i].write(pidOutput[i]);
             }
         }
-} servoGroup;
+} servoGroup(&encoderGroup);
 
 void setup() {
     // Set output pins' direction and default signal.
