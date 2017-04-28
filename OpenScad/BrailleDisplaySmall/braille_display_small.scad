@@ -31,7 +31,8 @@ import("camBotA.stl");
 uncomment the follow assembly methods to view full assembly of a cam and the frame
 */
 //assembledcam();
-assembly(false);
+//assembly(false);
+frontplate();
 
 /*
 Print lift pins
@@ -129,15 +130,13 @@ All cams positioning wholes to be used with front and back plates.
 module camset(){
     //rotary pot
     translate([15,7.65,0]) {
-        translate([0,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
-        translate([-50,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
-        translate([-21,0,0]) cube([5,13,14], center=true);
+        translate([0,0,0]) rotate([0,90,0]) cylinder(r=8.1, h=50);
+        translate([-50,0,0]) rotate([0,90,0]) cylinder(d=9, h=100);
     }
     //bearing
     translate([0,-7.25,0]) {
-        translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8, h=50);
-        translate([0,0,0]) rotate([0,90,0]) cylinder(d=7.5, h=100);
-        translate([33,0,0]) cube([5,13,14], center=true);
+        translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8.1, h=50);
+        translate([0,0,0]) rotate([0,90,0]) cylinder(d=9, h=100);
     }
 }
 
@@ -416,8 +415,8 @@ module liftPin(pinRadius, print=false){
 A coupler for connecting the cam shaft to the bearing insert
 */
 module bearingCoupler(){
-    translate([0,0,5]) cylinder(d=5.1, h=2.5, $fn=40);
-    translate([0,0,7.5]) cylinder(d1=5.0, d2=4.8, h=12.5, $fn=40);
+    translate([0,0,5]) cylinder(d=5.1, h=25, $fn=40);
+    translate([0,0,30]) cylinder(d1=5.0, d2=4.8, h=12.5, $fn=40);
     difference(){
       cylinder(d=12, h=5, $fn=40);
       cube([8.5,4.5,7.5], center=true);
@@ -427,20 +426,20 @@ module bearingCoupler(){
 /*
 A coupler for connecting the rotary pot to the cam shaft
 */
-module potCoupler(){
+module potCoupler() {
     difference(){
-    union(){
-      cylinder(d=12, h=5, $fn=40);
-      translate([0,0,4]) cylinder(d=8.5, h=11, $fn=40);
-}
-      cube([8.5,4.5,7.5], center=true);
-        translate([0,0,5]) {
-          difference(){
-            color("blue") cylinder(d=6.15, h=20, $fn=40);
-            translate([0,3,2]) cube([8,1.5,4.5], center=true);
-          }
+        union(){
+          cylinder(d=12, h=5, $fn=40);
+          translate([0,0,4]) cylinder(d=11, h=11, $fn=40);
         }
-      }
+        cube([8.5,4.5,7.5], center=true);
+        translate([0,0,4]) {
+            difference(){
+                color("blue") cylinder(d=6.50, h=20, $fn=40);
+                translate([0,3,2]) cube([8,0.8,4.5], center=true);
+            }
+        }
+    }
 }
 
 module frontPlate(){
