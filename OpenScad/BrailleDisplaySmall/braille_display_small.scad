@@ -32,7 +32,19 @@ uncomment the follow assembly methods to view full assembly of a cam and the fra
 */
 //assembledcam();
 //assembly(false);
-frontplate();
+bearingCoupler();
+
+/*
+Create a small sample of the side plate, including the receptors for ball bearing and encoder.
+*/
+module printSidePlateSample() {
+    intersection() {
+        translate([-16, -17, 0])
+            cube([26, 32, 15]);
+        rotate([0, 90, 0])
+            frontplate();
+    }
+}
 
 /*
 Print lift pins
@@ -426,12 +438,15 @@ module liftPin(pinRadius, print=false){
 /*
 A coupler for connecting the cam shaft to the bearing insert
 */
-module bearingCoupler(){
-    translate([0,0,5]) cylinder(d=5.1, h=25, $fn=40);
-    translate([0,0,30]) cylinder(d1=5.0, d2=4.8, h=12.5, $fn=40);
-    difference(){
-      cylinder(d=12, h=5, $fn=40);
-      cube([8.5,4.5,7.5], center=true);
+module bearingCoupler(shaft_padding = 0){
+    shaft_length = 32.5;
+    translate([0,0,5]) cylinder(d=5.1, h=5, $fn=40);
+    translate([0,0,10]) {
+        cylinder(d1=5.0 + shaft_padding, d2=4.8 + shaft_padding, h=shaft_length, $fn=6);
+    }
+    difference() {
+        cylinder(d=12, h=5, $fn=40);
+        cube([8.5,4.5,7.5], center=true);
     }
 }
 
@@ -442,13 +457,13 @@ module potCoupler() {
     difference(){
         union(){
           cylinder(d=12, h=5, $fn=40);
-          translate([0,0,4]) cylinder(d=11, h=11, $fn=40);
+          translate([0,0,5]) cylinder(d=9, h=10, $fn=40);
         }
         cube([8.5,4.5,7.5], center=true);
         translate([0,0,4]) {
             difference(){
-                color("blue") cylinder(d=6.50, h=20, $fn=40);
-                translate([0,3,2]) cube([8,0.8,4.5], center=true);
+                color("blue") cylinder(d=6.65, h=20, $fn=40);
+                translate([0,3,2]) cube([8,0.8,19], center=true);
             }
         }
     }
