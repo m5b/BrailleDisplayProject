@@ -163,8 +163,14 @@ The front plate for the display with rotary pot and bearing slots differenced ou
 pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
 */
 module frontplate(pad = 0){
+    encoder_pad = 4;
     difference(){
-        translate([-5,0,14]) color("green") cube([5+pad,96+pad,58], center=true);
+        union() {
+            translate([-5,0,14]) color("green") cube([5+pad,96+pad,58], center=true);
+            translate([-7.5, 7.7, 0]) rotate([0, -90, 0]) cylinder(r=6, h=encoder_pad, $fn=40);
+            translate([-7.5, -11.3, 25]) rotate([0, -90, 0]) cylinder(r=6, h=encoder_pad, $fn=40);
+            translate([-7.5, 27.7, 25]) rotate([0, -90, 0]) cylinder(r=6, h=encoder_pad, $fn=40);
+        }
         camset();
         translate([0,-19,25]) camset();
         translate([0,20,25]) camset();
@@ -183,8 +189,14 @@ The back plate for the display with rotary pot and bearing slots differenced out
 pad = additional adding to account for width variation in print. Use when differencing with top and base plates.
 */
 module backplate(pad = 0){
+    encoder_pad = 4;
     difference(){
-        translate([32,0,14]) color("cyan") cube([5+pad,96+pad,58], center=true);
+        union() {
+            translate([32,0,14]) color("cyan") cube([5+pad,96+pad,58], center=true);
+            translate([38.5, -7.3, 0]) rotate([0, -90, 0]) cylinder(r=6, h=encoder_pad, $fn=40);
+            translate([38.5, 12.7, 25]) rotate([0, -90, 0]) cylinder(r=6, h=encoder_pad, $fn=40);
+            translate([38.5, -26.3, 25]) rotate([0, -90, 0]) cylinder(r=6, h=encoder_pad, $fn=40);
+        }
         camset();
         translate([0,-19,25]) camset();
         translate([0,20,25]) camset();
