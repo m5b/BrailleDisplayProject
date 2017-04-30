@@ -32,7 +32,9 @@ uncomment the follow assembly methods to view full assembly of a cam and the fra
 */
 //assembledcam();
 //assembly(false);
-bearingCoupler();
+
+rotate([0, -90, 0])
+backplate();
 
 /*
 Create a small sample of the side plate, including the receptors for ball bearing and encoder.
@@ -142,13 +144,13 @@ All cams positioning wholes to be used with front and back plates.
 module camset(){
     //rotary pot
     translate([15,7.65,0]) {
-        translate([0,0,0]) rotate([0,90,0]) cylinder(r=8.1, h=50);
-        translate([-50,0,0]) rotate([0,90,0]) cylinder(d=9, h=100);
+        translate([0,0,0]) rotate([0,90,0]) cylinder(r=8.05, h=50);
+        translate([-50,0,0]) rotate([0,90,0]) cylinder(d=8.75, h=100);
     }
     //bearing
     translate([0,-7.25,0]) {
-        translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8.1, h=50);
-        translate([0,0,0]) rotate([0,90,0]) cylinder(d=9, h=100);
+        translate([-50,0,0]) rotate([0,90,0]) cylinder(r=8.05, h=50);
+        translate([0,0,0]) rotate([0,90,0]) cylinder(d=8.75, h=100);
     }
 }
 
@@ -440,7 +442,7 @@ A coupler for connecting the cam shaft to the bearing insert
 */
 module bearingCoupler(shaft_padding = 0){
     shaft_length = 32.5;
-    translate([0,0,5]) cylinder(d=5.1, h=5, $fn=40);
+    translate([0,0,5]) cylinder(d=5.04, h=5, $fn=40);
     translate([0,0,10]) {
         cylinder(d1=5.0 + shaft_padding, d2=4.8 + shaft_padding, h=shaft_length, $fn=6);
     }
@@ -457,12 +459,12 @@ module potCoupler() {
     difference(){
         union(){
           cylinder(d=12, h=5, $fn=40);
-          translate([0,0,5]) cylinder(d=9, h=10, $fn=40);
+          translate([0,0,5]) cylinder(d=8, h=10, $fn=40);
         }
         cube([8.5,4.5,7.5], center=true);
-        translate([0,0,4]) {
+        translate([0,0,5]) {
             difference(){
-                color("blue") cylinder(d=6.65, h=20, $fn=40);
+                color("blue") cylinder(d=6.1, h=20, $fn=40);
                 translate([0,3,2]) cube([8,0.8,19], center=true);
             }
         }
