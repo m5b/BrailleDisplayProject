@@ -47,7 +47,7 @@ class EncoderGroup {
             for (uint8_t bitPosition = 0; bitPosition < 8; ++bitPosition) {
                 // Read Q from each connected register.
                 for (uint8_t registerIndex = 0; registerIndex < NUM_REGISTER; ++registerIndex) {
-                    position[registerIndex] = position[registerIndex] << 1 | digitalRead(registerPin[registerIndex]);
+                    position[registerIndex] = (position[registerIndex] << 1) | digitalRead(registerPin[registerIndex]);
                 }
 
                 // Shift the register
@@ -130,9 +130,22 @@ void setup() {
     pinMode(PIN_SERVO_INPUT_5,  OUTPUT);
     pinMode(PIN_SERVO_INPUT_6,  OUTPUT);
 
+    // Apparently pins are not set to INPUT by default like AVR. Who would have thought!
+    pinMode(PIN_REGISTER_DATA_OUT_1, INPUT);
+    pinMode(PIN_REGISTER_DATA_OUT_2, INPUT);
+    pinMode(PIN_REGISTER_DATA_OUT_3, INPUT);
+    pinMode(PIN_REGISTER_DATA_OUT_4, INPUT);
+    pinMode(PIN_REGISTER_DATA_OUT_5, INPUT);
+    pinMode(PIN_REGISTER_DATA_OUT_6, INPUT);
+
     digitalWrite(PIN_REGISTER_LOAD,  HIGH);
     digitalWrite(PIN_REGISTER_CLOCK, LOW);
+
+    Serial.begin(9600);
 }
 
 void loop() {
+    encoderGroup.readPosition();
+    Serial.println(encoderGroup.position[0]);
+    delay(1000);
 }
