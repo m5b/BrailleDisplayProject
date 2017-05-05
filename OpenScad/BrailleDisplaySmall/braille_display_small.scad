@@ -442,9 +442,13 @@ A coupler for connecting the cam shaft to the bearing insert
 */
 module bearingCoupler(shaft_padding = 0){
     shaft_length = 32.5;
-    translate([0,0,5]) cylinder(d=5.04, h=5, $fn=40);
+    insert_length = 10;
+    translate([0,0,5]) cylinder(d=5.02, h=5, $fn=40);
     translate([0,0,10]) {
-        cylinder(d1=5.0 + shaft_padding, d2=4.8 + shaft_padding, h=shaft_length, $fn=6);
+        cylinder(d=5.0, h=shaft_length - insert_length, $fn=6);
+    }
+    translate([0,0,10 + shaft_length - insert_length]) {
+        cylinder(d1=5 + shaft_padding, d2=4 + shaft_padding, h=insert_length, $fn=6);
     }
     difference() {
         cylinder(d=12, h=5, $fn=40);

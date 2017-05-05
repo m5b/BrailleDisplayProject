@@ -12,8 +12,8 @@ SHAFT_BASE_DIAMETER = 21;
 BASE_SCREW_DIAMETER = 2;
 CENTER_TO_BASE_SCREW_DISTANCE = 7.25;
 
-print_tray();
-//preview();
+//print_tray();
+preview();
 
 /*
 Arrange the items on a tray for printing
@@ -84,9 +84,13 @@ Yanked from braille_display_small.scad
 */
 module bearingCoupler(shaft_padding = 0){
     shaft_length = 32.5;
-    translate([0,0,5]) cylinder(d=5.1, h=5, $fn=40);
+    insert_length = 10;
+    translate([0,0,5]) cylinder(d=5.02, h=5, $fn=40);
     translate([0,0,10]) {
-        cylinder(d1=5.0 + shaft_padding, d2=4.8 + shaft_padding, h=shaft_length, $fn=6);
+        cylinder(d=5.0, h=shaft_length - insert_length, $fn=6);
+    }
+    translate([0,0,10 + shaft_length - insert_length]) {
+        cylinder(d1=5 + shaft_padding, d2=4 + shaft_padding, h=insert_length, $fn=6);
     }
     difference() {
         cylinder(d=12, h=5, $fn=40);
