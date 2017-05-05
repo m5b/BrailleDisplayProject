@@ -61,7 +61,7 @@ class EncoderGroup {
 class ServoGroup {
     private:
         double kp = 2; // TODO: Find optimal P (Proportional) factor
-        double ki = 0; // imo, integral should be ignored because the set point is jumping all over the place between 0 and 255.
+        double ki = 1; // TODO: Find optimal I (Integral) factor
         double kd = 6; // TODO: Find optimal D (Derivative) factor
 
         PID *servoPID[NUM_REGISTER] = {0};
@@ -84,8 +84,8 @@ class ServoGroup {
             // Initialize PID instances for all servos
             for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
                 servoPID[i] = new PID(&pidInput[i], &pidOutput[i], &pidSetpoint[i], kp, ki, kd, DIRECT);
-                servoPID[i]->SetOutputLimits(90, 180);
                 servoPID[i]->SetMode(AUTOMATIC);
+                servoPID[i]->SetOutputLimits(0, 180);
 
                 servo[i] = Servo();
                 servo[i].attach(servoPin[i]);
@@ -96,6 +96,7 @@ class ServoGroup {
 
         /**
          * Set given servo to given position. Does not actually TURN the servo.
+         * Turning is done in runIteration().
          * @param: servo: servo index; should be between 0 and NUM_REGISTER
          * @param: position: 8-bit position. 0 = 0 degrees; 255 = ~360 degrees.
          */
@@ -105,6 +106,7 @@ class ServoGroup {
 
         /**
          * Run one iteration of the "main loop".
+         * Call this once every loop()
          */
         void runIteration() {
             // Update servo input position
@@ -114,6 +116,7 @@ class ServoGroup {
             for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
                 pidInput[i] = encoderGroup->position[i];
                 servoPID[i]->Compute();
+
                 servo[i].write(pidOutput[i]);
             }
         }
@@ -130,7 +133,6 @@ void setup() {
     pinMode(PIN_SERVO_INPUT_5,  OUTPUT);
     pinMode(PIN_SERVO_INPUT_6,  OUTPUT);
 
-    // Apparently pins are not set to INPUT by default like AVR. Who would have thought!
     pinMode(PIN_REGISTER_DATA_OUT_1, INPUT);
     pinMode(PIN_REGISTER_DATA_OUT_2, INPUT);
     pinMode(PIN_REGISTER_DATA_OUT_3, INPUT);
@@ -145,7 +147,7 @@ void setup() {
 }
 
 void loop() {
-    encoderGroup.readPosition();
-    Serial.println(encoderGroup.position[0]);
-    delay(1000);
+    // Testing: Turn the servo to approximately 180 degrees.
+    servoGroup.setTargetPosition(0, 127);
+    servoGroup.runIteration();
 }
