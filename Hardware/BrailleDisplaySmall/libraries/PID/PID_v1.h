@@ -1,6 +1,6 @@
 #ifndef PID_v1_h
 #define PID_v1_h
-#define LIBRARY_VERSION	1.1.1
+#define LIBRARY_VERSION	1.1.1-ltrcao
 
 class PID
 {
@@ -13,6 +13,8 @@ class PID
   #define MANUAL	0
   #define DIRECT  0
   #define REVERSE  1
+  #define LINEAR    0
+  #define CIRCULAR  1
 
   //commonly used functions **************************************************************************
     PID(double*, double*, double*,        // * constructor.  links the PID to the Input, Output, and 
@@ -41,6 +43,9 @@ class PID
 										  //   once it is set in the constructor.
     void SetSampleTime(int);              // * sets the frequency, in Milliseconds, with which 
                                           //   the PID calculation is performed.  default is 100
+    void SetInputType(int InputType,      // * Sets the input type to LINEAR or CIRCULAR, which changes the
+                      int, int);          //   manner in which the error is computed for the proportional term.
+                                          //   Useful for circular inputs like angular readings from an encoder.
 										  
 										  
 										  
@@ -75,6 +80,11 @@ class PID
 	unsigned long SampleTime;
 	double outMin, outMax;
 	bool inAuto;
+
+    bool hasCircularInput;      // * Changes error computation for the proportional term.
+    int inputMin, inputMax;     //   Useful for circular inputs like angular readings from an encoder,
+    int inputMid;               //   which loop over to a minimum value after exceeding a maximum.
+                                //   Caveat: Only works for integer inputs.
 };
 #endif
 

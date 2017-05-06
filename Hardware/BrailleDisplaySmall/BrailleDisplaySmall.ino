@@ -101,9 +101,9 @@ class EncoderGroup {
 
 class ServoGroup {
     private:
-        double kp = 3;  // Seems reasonably quick. Also avoids oscillation decently.
-        double ki = 3;  // Helps avoid oscillation.
-        double kd = 0;  // This always gives oscillation in experiments so set to 0 for now.
+        double kp = 1.5;
+        double ki = 4.5;
+        double kd = 0;
 
         PID *servoPID[NUM_REGISTER] = {0};
         double pidInput[NUM_REGISTER];            // Inputs to PID controllers to adjust their outputs
@@ -126,7 +126,8 @@ class ServoGroup {
             for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
                 servoPID[i] = new PID(&pidInput[i], &pidOutput[i], &pidSetpoint[i], kp, ki, kd, DIRECT);
                 servoPID[i]->SetMode(AUTOMATIC);
-                servoPID[i]->SetOutputLimits(80, 100);
+                servoPID[i]->SetOutputLimits(0, 180);
+                servoPID[i]->SetInputType(CIRCULAR, 0, 127);
 
                 servo[i] = Servo();
                 servo[i].attach(servoPin[i]);
@@ -191,7 +192,7 @@ String inString = "";
 void loop() {
     // Testing: Turn the servo to a position given via Serial.
     servoGroup.runIteration();
-    delay(10);
+    delay(50);
     Serial.println(encoderGroup.position[0]);
 
     while (Serial.available()) {

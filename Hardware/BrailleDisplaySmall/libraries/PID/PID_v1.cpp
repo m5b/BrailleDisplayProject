@@ -54,6 +54,20 @@ bool PID::Compute()
       /*Compute all the working error variables*/
 	  double input = *myInput;
       double error = *mySetpoint - input;
+      if (hasCircularInput)
+      {
+         if (abs(error) > inputMid)
+         {
+            if (*mySetpoint > input)
+            {
+               error = *mySetpoint - inputMax - 1;
+            }
+            else
+            {
+               error = inputMax + 1 - input;
+            }
+         }
+      }
       ITerm+= (ki * error);
       if(ITerm > outMax) ITerm= outMax;
       else if(ITerm < outMin) ITerm= outMin;
@@ -151,6 +165,23 @@ void PID::SetMode(int Mode)
         PID::Initialize();
     }
     inAuto = newAuto;
+}
+
+/* SetInputType(...)***********************************************************
+ * If input type is CIRCULAR, changes error computation for the proportional
+ * term such that the difference between the setpoint and the circular input
+ * is a minimum. Helpful for circular inputs such as angular readings from an
+ * encoder.
+ ******************************************************************************/
+void PID::SetInputType(int InputType, int inMin, int inMax)
+{
+   if (CIRCULAR == InputType && inMin >= inMax) return;
+   if ((hasCircularInput = InputType))
+   {
+      inputMin = inMin;
+      inputMax = inMax;
+      inputMid = (inMax - inMin) / 2;
+   }
 }
  
 /* Initialize()****************************************************************
