@@ -18,6 +18,7 @@
 
 #define NUM_REGISTER                6   // Number of registers in use
 
+
 /**
  * Read cam shafts' position using absolute encoders through shift registers.
  * Also clock and shift registers automatically.
@@ -32,8 +33,43 @@ class EncoderGroup {
                                              PIN_REGISTER_DATA_OUT_5,
                                              PIN_REGISTER_DATA_OUT_6};
 
+        /**
+         * Pin output code for absolute encoder.
+         * Taken from datasheet at http://www.bourns.com/docs/Product-Datasheets/ace.pdf
+         * Rotation is divided into 128 positions so the encoder has a 7-bit precision.
+         */
+        const uint8_t MAP_ENCODER_POSITION_TO_OUTPUT[128] = {
+            127, 63, 62, 58, 56, 184, 152, 24, 8, 72, 73, 77, 79, 15, 47, 175,
+            191, 159, 31, 29, 28, 92, 76, 12, 4, 36, 164, 166, 167, 135, 151, 215, 223,
+            207, 143, 142, 14, 46, 38, 6, 2, 18, 82, 83, 211, 195, 203, 235, 239, 231, 199,
+            71, 7, 23, 19, 3, 1, 9, 41, 169, 233, 225, 229, 245, 247, 243, 227, 163, 131,
+            139, 137, 129, 128, 132, 148, 212, 244, 240, 242, 250, 251, 249, 241, 209, 193,
+            197, 196, 192, 64, 66, 74, 106, 122, 120, 121, 125, 253, 252, 248, 232, 224,
+            226, 98, 96, 32, 33, 37, 53, 61, 60, 188, 190, 254, 126, 124, 116, 112, 113,
+            49, 48, 16, 144, 146, 154, 158, 30, 94, 95};
+
+        /**
+         * Reverse lookup table of the above.
+         * Note: Because only 128 positions exist whereas 256 outputs do,
+         *       some superfluous outputs are mapped to 0.
+         *       Manufacturer's fault if the hardware gives such outputs.
+         */
+        const uint8_t MAP_ENCODER_OUTPUT_TO_POSITION[256] = {
+            0, 56, 40, 55, 24, 0, 39, 52, 8, 57, 0, 0, 23, 0, 36, 13, 120, 0,
+            41, 54, 0, 0, 0, 53, 7, 0, 0, 0, 20, 19, 125, 18, 104, 105, 0, 0, 25, 106, 38,
+            0, 0, 58, 0, 0, 0, 0, 37, 14, 119, 118, 0, 0, 0, 107, 0, 0, 4, 0, 3, 0, 109,
+            108, 2, 1, 88, 0, 89, 0, 0, 0, 0, 51, 9, 10, 90, 0, 22, 11, 0, 12, 0, 0, 42,
+            43, 0, 0, 0, 0, 0, 0, 0, 0, 21, 0, 126, 127, 103, 0, 102, 0, 0, 0, 0, 0, 0, 0,
+            91, 0, 0, 0, 0, 0, 116, 117, 0, 0, 115, 0, 0, 0, 93, 94, 92, 0, 114, 95, 113,
+            0, 72, 71, 0, 68, 73, 0, 0, 29, 0, 70, 0, 69, 0, 0, 35, 34, 121, 0, 122, 0, 74,
+            0, 0, 30, 6, 0, 123, 0, 0, 0, 124, 17, 0, 0, 0, 67, 26, 0, 27, 28, 0, 59, 0, 0,
+            0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 110, 0, 111, 16, 87, 84, 0,
+            45, 86, 85, 0, 50, 0, 0, 0, 46, 0, 0, 0, 33, 0, 83, 0, 44, 75, 0, 0, 31, 0, 0,
+            0, 0, 0, 0, 0, 32, 100, 61, 101, 66, 0, 62, 0, 49, 99, 60, 0, 47, 0, 0, 0, 48,
+            77, 82, 78, 65, 76, 63, 0, 64, 98, 81, 79, 80, 97, 96, 112, 0};
+
     public:
-        // 8-bit position as read by the absolute encoder. 0 = 0 degrees, 255 = ~360 degrees.
+        // 7-bit position as read by the absolute encoder. 0 = 0 degrees, 127 = ~360 degrees.
         uint8_t position[NUM_REGISTER] = {0};
 
         // Read position from all encoders into a member array.
@@ -55,19 +91,24 @@ class EncoderGroup {
                 delayMicroseconds(TRANSITION_TIME);
                 digitalWrite(PIN_REGISTER_CLOCK, LOW);
             }
+
+            // Map encoder output to actual position
+            for (uint8_t registerIndex = 0; registerIndex < NUM_REGISTER; ++registerIndex) {
+                position[registerIndex] = MAP_ENCODER_OUTPUT_TO_POSITION[position[registerIndex]];
+            }
         }
 } encoderGroup;
 
 class ServoGroup {
     private:
-        double kp = 2; // TODO: Find optimal P (Proportional) factor
-        double ki = 1; // TODO: Find optimal I (Integral) factor
-        double kd = 6; // TODO: Find optimal D (Derivative) factor
+        double kp = 3;  // Seems reasonably quick. Also avoids oscillation decently.
+        double ki = 3;  // Helps avoid oscillation.
+        double kd = 0;  // This always gives oscillation in experiments so set to 0 for now.
 
         PID *servoPID[NUM_REGISTER] = {0};
-        double pidInput[NUM_REGISTER];      // Inputs to PID controllers to adjust their outputs
-        double pidSetpoint[NUM_REGISTER];   // Setpoints to PID controllers to steer their outputs
-        double pidOutput[NUM_REGISTER];     // Outputs of PID controllers.
+        double pidInput[NUM_REGISTER];            // Inputs to PID controllers to adjust their outputs
+        double pidSetpoint[NUM_REGISTER] = {60};  // Setpoints to PID controllers to steer their outputs
+        double pidOutput[NUM_REGISTER];           // Outputs of PID controllers.
 
         Servo servo[NUM_REGISTER];
         uint8_t servoPin[NUM_REGISTER] = {PIN_SERVO_INPUT_1,
@@ -85,7 +126,7 @@ class ServoGroup {
             for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
                 servoPID[i] = new PID(&pidInput[i], &pidOutput[i], &pidSetpoint[i], kp, ki, kd, DIRECT);
                 servoPID[i]->SetMode(AUTOMATIC);
-                servoPID[i]->SetOutputLimits(0, 180);
+                servoPID[i]->SetOutputLimits(80, 100);
 
                 servo[i] = Servo();
                 servo[i].attach(servoPin[i]);
@@ -98,7 +139,7 @@ class ServoGroup {
          * Set given servo to given position. Does not actually TURN the servo.
          * Turning is done in runIteration().
          * @param: servo: servo index; should be between 0 and NUM_REGISTER
-         * @param: position: 8-bit position. 0 = 0 degrees; 255 = ~360 degrees.
+         * @param: position: 7-bit position. 0 = 0 degrees; 127 = ~360 degrees.
          */
         void setTargetPosition(uint8_t servo, double position) {
             pidSetpoint[servo] = position;
@@ -146,8 +187,21 @@ void setup() {
     Serial.begin(9600);
 }
 
+String inString = "";
 void loop() {
-    // Testing: Turn the servo to approximately 180 degrees.
-    servoGroup.setTargetPosition(0, 127);
+    // Testing: Turn the servo to a position given via Serial.
     servoGroup.runIteration();
+    delay(10);
+    Serial.println(encoderGroup.position[0]);
+
+    while (Serial.available()) {
+        uint8_t inChar = Serial.read();
+        if (isDigit(inChar)) {
+            inString += (char) inChar;
+        }
+        if ('\n' == inChar) {
+            servoGroup.setTargetPosition(0, inString.toInt());
+            inString = "";
+        }
+    }
 }
