@@ -46,6 +46,9 @@ class PID
     void SetInputType(int InputType,      // * Sets the input type to LINEAR or CIRCULAR, which changes the
                       int, int);          //   manner in which the error is computed for the proportional term.
                                           //   Useful for circular inputs like angular readings from an encoder.
+    void SetErrorTolerance(double);       // * Sets an acceptable margin of errors to minimize oscillations.
+                                          //   If current error is within this margin of errors, output is
+                                          //   not changed.
 										  
 										  
 										  
@@ -85,6 +88,8 @@ class PID
     int inputMin, inputMax;     //   Useful for circular inputs like angular readings from an encoder,
     int inputMid;               //   which loop over to a minimum value after exceeding a maximum.
                                 //   Caveat: Only works for integer inputs.
+
+    double errorTolerance;      // * Sets an acceptable margin of errors to minimize oscillations.
 };
 #endif
 

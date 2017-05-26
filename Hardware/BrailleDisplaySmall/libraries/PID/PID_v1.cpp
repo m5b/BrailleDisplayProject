@@ -68,6 +68,13 @@ bool PID::Compute()
             }
          }
       }
+
+      /*Do nothing if error is within tolerances*/
+      if (error <= errorTolerance)
+      {
+         return false;
+      }
+
       ITerm+= (ki * error);
       if(ITerm > outMax) ITerm= outMax;
       else if(ITerm < outMin) ITerm= outMin;
@@ -211,6 +218,16 @@ void PID::SetControllerDirection(int Direction)
       kd = (0 - kd);
    }   
    controllerDirection = Direction;
+}
+
+/* SetErrorTolerance(...)******************************************************
+ * Sets an acceptable margin of errors to minimize oscillations. If the current
+ * error is within this margin of errors, output is not changed and nothing is
+ * done.
+ *****************************************************************************/
+void PID::SetErrorTolerance(double tolerance)
+{
+   errorTolerance = tolerance;
 }
 
 /* Status Funcions*************************************************************
