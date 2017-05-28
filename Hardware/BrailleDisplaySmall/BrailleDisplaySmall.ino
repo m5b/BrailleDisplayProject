@@ -126,8 +126,18 @@ class ServoGroup {
             for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
                 servoPID[i] = new PID(&pidInput[i], &pidOutput[i], &pidSetpoint[i], kp, ki, kd, DIRECT);
                 servoPID[i]->SetMode(AUTOMATIC);
+
+                // Limit output to 0 (really fast counter-clockwise motion) and
+                //               180 (really fast clockwise motion).
+                // To prevent overshoots and oscillations, the limits could be narrowed to something like
+                //                          45, 135 or
+                //                          60, 120.
+                // Make sure the numbers add up to 180 to keep the speed uniform in both directions.
                 servoPID[i]->SetOutputLimits(0, 180);
                 servoPID[i]->SetInputType(CIRCULAR, 0, 127);
+
+                // Allow PID output to differ from target by 1 to prevent tiny oscillations.
+                servoPID[i]->SetErrorTolerance(1);
 
                 servo[i] = Servo();
                 servo[i].attach(servoPin[i]);
@@ -137,7 +147,7 @@ class ServoGroup {
         }
 
         /**
-         * Set given servo to given position. Does not actually TURN the servo.
+         * Set given servo to given position. Does NOT actually TURN the servo.
          * Turning is done in runIteration().
          * @param: servo: servo index; should be between 0 and NUM_REGISTER
          * @param: position: 7-bit position. 0 = 0 degrees; 127 = ~360 degrees.

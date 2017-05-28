@@ -1,6 +1,6 @@
 #ifndef PID_v1_h
 #define PID_v1_h
-#define LIBRARY_VERSION	1.1.1-ltrcao
+#define LIBRARY_VERSION	1.1.1-ltrcao-2
 
 class PID
 {
