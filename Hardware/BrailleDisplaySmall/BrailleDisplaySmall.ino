@@ -34,6 +34,14 @@ class EncoderGroup {
                                              PIN_REGISTER_DATA_OUT_6};
 
         /**
+         * Specify which encoder output should be reversed bitwise.
+         * Useful in cases where the encoder or shift register is flipped.
+         *
+         * 1 = Do reverse. 0 = Do not reverse.
+         */
+        const uint8_t REVERSE_REGISTER[NUM_REGISTER] = {1, 1, 1, 1, 1, 1};
+
+        /**
          * Pin output code for absolute encoder.
          * Taken from datasheet at http://www.bourns.com/docs/Product-Datasheets/ace.pdf
          * Rotation is divided into 128 positions so the encoder has a 7-bit precision.
@@ -74,6 +82,11 @@ class EncoderGroup {
 
         // Read position from all encoders into a member array.
         void readPosition() {
+            // Clear stored positions
+            for (uint8_t registerIndex = 0; registerIndex < NUM_REGISTER; ++registerIndex) {
+                position[registerIndex] = 0;
+            }
+
             // Load parallel input into register: Pull SH/~LD low.
             digitalWrite(PIN_REGISTER_LOAD, LOW);
             delayMicroseconds(TRANSITION_TIME);
@@ -83,7 +96,11 @@ class EncoderGroup {
             for (uint8_t bitPosition = 0; bitPosition < 8; ++bitPosition) {
                 // Read Q from each connected register.
                 for (uint8_t registerIndex = 0; registerIndex < NUM_REGISTER; ++registerIndex) {
-                    position[registerIndex] = (position[registerIndex] << 1) | digitalRead(registerPin[registerIndex]);
+                    if (!REVERSE_REGISTER[registerIndex]) {
+                        position[registerIndex] = (position[registerIndex] << 1) | digitalRead(registerPin[registerIndex]);
+                    } else {
+                        position[registerIndex] |= digitalRead(registerPin[registerIndex]) << bitPosition;
+                    }
                 }
 
                 // Shift the register
