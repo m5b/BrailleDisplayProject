@@ -196,16 +196,16 @@ class BrailleDisplay {
         ServoGroup* servoGroup;
 
         /**
-         * Character arrays based on cam positioning. Yanked directly from 
+         * Character arrays based on cam positioning. Yanked directly from
          * /Hardware/BrailleDisplay/libraries/Braille/Braille.cpp
          */
         uint8_t topCam[16]    = { B0000, B0011, B0101, B0001, B0010, B1111, B0110, B1110,
                                   B1010, B1011, B1001, B1000, B0111, B1101, B1100, B0100 };
 
-        uint8_t middleCam[16] = { B0000, B0010, B0100, B0011, B1100, B0110, B1011, B1111, 
+        uint8_t middleCam[16] = { B0000, B0010, B0100, B0011, B1100, B0110, B1011, B1111,
                                   B0111, B0101, B1101, B1110, B0001, B1001, B1010, B1000 };
-            
-        uint8_t bottomCam[16] = { B0000, B0010, B1010, B0011, B1110, B0100, B1001, B0110, 
+
+        uint8_t bottomCam[16] = { B0000, B0010, B1010, B0011, B1110, B0100, B1001, B0110,
                                   B0101, B1101, B0111, B0001, B1111, B1011, B1100, B1000 };
 
         /**
@@ -245,19 +245,27 @@ void setup() {
 
 String inString = "";
 void loop() {
-    // Testing: Turn the servo to a position given via Serial.
-    servoGroup.runIteration();
     delay(50);
-    Serial.println(encoderGroup.position[0]);
+    servoGroup.runIteration();
 
-    while (Serial.available()) {
-        uint8_t inChar = Serial.read();
-        if (isDigit(inChar)) {
-            inString += (char) inChar;
-        }
-        if ('\n' == inChar) {
-            servoGroup.setTargetPosition(0, inString.toInt());
-            inString = "";
-        }
-    }
+    // Testing: Turn the servo to a position given via Serial.
+    //Serial.println(encoderGroup.position[0]);
+
+    //while (Serial.available()) {
+    //    uint8_t inChar = Serial.read();
+    //    if (isDigit(inChar)) {
+    //        inString += (char) inChar;
+    //    }
+    //    if ('\n' == inChar) {
+    //        servoGroup.setTargetPosition(0, inString.toInt());
+    //        inString = "";
+    //    }
+    //}
+
+    // Testing: Read position from encoder 1, 2 and 3.
+    Serial.print(encoderGroup.position[0]);
+    Serial.print(" ");
+    Serial.print(encoderGroup.position[1]);
+    Serial.print(" ");
+    Serial.println(encoderGroup.position[2]);
 }
