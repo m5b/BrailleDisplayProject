@@ -191,6 +191,34 @@ class ServoGroup {
         }
 } servoGroup(&encoderGroup);
 
+class BrailleDisplay {
+    private:
+        ServoGroup* servoGroup;
+
+        /**
+         * Character arrays based on cam positioning. Yanked directly from 
+         * /Hardware/BrailleDisplay/libraries/Braille/Braille.cpp
+         */
+        uint8_t topCam[16]    = { B0000, B0011, B0101, B0001, B0010, B1111, B0110, B1110,
+                                  B1010, B1011, B1001, B1000, B0111, B1101, B1100, B0100 };
+
+        uint8_t middleCam[16] = { B0000, B0010, B0100, B0011, B1100, B0110, B1011, B1111, 
+                                  B0111, B0101, B1101, B1110, B0001, B1001, B1010, B1000 };
+            
+        uint8_t bottomCam[16] = { B0000, B0010, B1010, B0011, B1110, B0100, B1001, B0110, 
+                                  B0101, B1101, B0111, B0001, B1111, B1011, B1100, B1000 };
+
+        /**
+         * Each cam position occupies (360 degrees divided by 16 values)
+         */
+         const double CAM_POSITION_ANGLE = 360.0 / 16.0;
+
+    public:
+        BrailleDisplay(ServoGroup* sg) {
+            servoGroup = sg;
+        }
+} brailleDisplay(&servoGroup);
+
 void setup() {
     // Set output pins' direction and default signal.
     pinMode(PIN_REGISTER_CLOCK, OUTPUT);
