@@ -124,7 +124,7 @@ class ServoGroup {
 
         PID *servoPID[NUM_REGISTER] = {0};
         double pidInput[NUM_REGISTER];            // Inputs to PID controllers to adjust their outputs
-        double pidSetpoint[NUM_REGISTER] = {0};  // Setpoints to PID controllers to steer their outputs
+        double pidSetpoint[NUM_REGISTER] = {0};   // Setpoints to PID controllers to steer their outputs
         double pidOutput[NUM_REGISTER];           // Outputs of PID controllers.
 
         Servo servo[NUM_REGISTER];
@@ -154,7 +154,7 @@ class ServoGroup {
                 servoPID[i]->SetInputType(CIRCULAR, 0, 127);
 
                 // Allow PID output to differ from target by 1 to prevent tiny oscillations.
-                servoPID[i]->SetErrorTolerance(2);
+                servoPID[i]->SetErrorTolerance(1);
 
                 servo[i] = Servo();
                 servo[i].attach(servoPin[i], 1000, 2000);

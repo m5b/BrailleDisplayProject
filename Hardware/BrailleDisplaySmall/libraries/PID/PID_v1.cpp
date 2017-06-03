@@ -69,11 +69,10 @@ bool PID::Compute()
          }
       }
 
-      /*Do nothing if error is within tolerances*/
+      /*Scale down error if within tolerances*/
       if (abs(error) <= errorTolerance)
       {
-         *myOutput = 90;
-         return false;
+          error *= 0.01;
       }
 
       ITerm+= (ki * error);
