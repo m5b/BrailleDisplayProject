@@ -119,12 +119,12 @@ class EncoderGroup {
 class ServoGroup {
     private:
         double kp = 1.5;
-        double ki = 4.5;
-        double kd = 0;
+        double ki = 1.5;
+        double kd = 0.0;
 
         PID *servoPID[NUM_REGISTER] = {0};
         double pidInput[NUM_REGISTER];            // Inputs to PID controllers to adjust their outputs
-        double pidSetpoint[NUM_REGISTER] = {60};  // Setpoints to PID controllers to steer their outputs
+        double pidSetpoint[NUM_REGISTER] = {0};  // Setpoints to PID controllers to steer their outputs
         double pidOutput[NUM_REGISTER];           // Outputs of PID controllers.
 
         Servo servo[NUM_REGISTER];
@@ -150,14 +150,14 @@ class ServoGroup {
                 //                          45, 135 or
                 //                          60, 120.
                 // Make sure the numbers add up to 180 to keep the speed uniform in both directions.
-                servoPID[i]->SetOutputLimits(0, 180);
+                servoPID[i]->SetOutputLimits(60, 120);
                 servoPID[i]->SetInputType(CIRCULAR, 0, 127);
 
                 // Allow PID output to differ from target by 1 to prevent tiny oscillations.
-                servoPID[i]->SetErrorTolerance(1);
+                servoPID[i]->SetErrorTolerance(2);
 
                 servo[i] = Servo();
-                servo[i].attach(servoPin[i]);
+                servo[i].attach(servoPin[i], 1000, 2000);
             }
 
             encoderGroup = eg;
@@ -191,33 +191,33 @@ class ServoGroup {
         }
 } servoGroup(&encoderGroup);
 
-class BrailleDisplay {
-    private:
-        ServoGroup* servoGroup;
-
-        /**
-         * Character arrays based on cam positioning. Yanked directly from
-         * /Hardware/BrailleDisplay/libraries/Braille/Braille.cpp
-         */
-        uint8_t topCam[16]    = { B0000, B0011, B0101, B0001, B0010, B1111, B0110, B1110,
-                                  B1010, B1011, B1001, B1000, B0111, B1101, B1100, B0100 };
-
-        uint8_t middleCam[16] = { B0000, B0010, B0100, B0011, B1100, B0110, B1011, B1111,
-                                  B0111, B0101, B1101, B1110, B0001, B1001, B1010, B1000 };
-
-        uint8_t bottomCam[16] = { B0000, B0010, B1010, B0011, B1110, B0100, B1001, B0110,
-                                  B0101, B1101, B0111, B0001, B1111, B1011, B1100, B1000 };
-
-        /**
-         * Each cam position occupies (360 degrees divided by 16 values)
-         */
-         const double CAM_POSITION_ANGLE = 360.0 / 16.0;
-
-    public:
-        BrailleDisplay(ServoGroup* sg) {
-            servoGroup = sg;
-        }
-} brailleDisplay(&servoGroup);
+//class BrailleDisplay {
+//    private:
+//        ServoGroup* servoGroup;
+//
+//        /**
+//         * Character arrays based on cam positioning. Yanked directly from
+//         * /Hardware/BrailleDisplay/libraries/Braille/Braille.cpp
+//         */
+//        uint8_t topCam[16]    = { B0000, B0011, B0101, B0001, B0010, B1111, B0110, B1110,
+//                                  B1010, B1011, B1001, B1000, B0111, B1101, B1100, B0100 };
+//
+//        uint8_t middleCam[16] = { B0000, B0010, B0100, B0011, B1100, B0110, B1011, B1111,
+//                                  B0111, B0101, B1101, B1110, B0001, B1001, B1010, B1000 };
+//
+//        uint8_t bottomCam[16] = { B0000, B0010, B1010, B0011, B1110, B0100, B1001, B0110,
+//                                  B0101, B1101, B0111, B0001, B1111, B1011, B1100, B1000 };
+//
+//        /**
+//         * Each cam position occupies (360 degrees divided by 16 values)
+//         */
+//         const double CAM_POSITION_ANGLE = 360.0 / 16.0;
+//
+//    public:
+//        BrailleDisplay(ServoGroup* sg) {
+//            servoGroup = sg;
+//        }
+//} brailleDisplay(&servoGroup);
 
 void setup() {
     // Set output pins' direction and default signal.
@@ -249,23 +249,23 @@ void loop() {
     servoGroup.runIteration();
 
     // Testing: Turn the servo to a position given via Serial.
-    //Serial.println(encoderGroup.position[0]);
-
-    //while (Serial.available()) {
-    //    uint8_t inChar = Serial.read();
-    //    if (isDigit(inChar)) {
-    //        inString += (char) inChar;
-    //    }
-    //    if ('\n' == inChar) {
-    //        servoGroup.setTargetPosition(0, inString.toInt());
-    //        inString = "";
-    //    }
-    //}
-
-    // Testing: Read position from encoder 1, 2 and 3.
     Serial.print(encoderGroup.position[0]);
     Serial.print(" ");
     Serial.print(encoderGroup.position[1]);
     Serial.print(" ");
     Serial.println(encoderGroup.position[2]);
+
+    while (Serial.available()) {
+        uint8_t inChar = Serial.read();
+        if (isDigit(inChar)) {
+            inString += (char) inChar;
+        }
+        if ('\n' == inChar) {
+            int target = inString.toInt();
+            servoGroup.setTargetPosition(0, target);
+            servoGroup.setTargetPosition(1, target);
+            servoGroup.setTargetPosition(2, target);
+            inString = "";
+        }
+    }
 }

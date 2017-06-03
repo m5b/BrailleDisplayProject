@@ -70,8 +70,9 @@ bool PID::Compute()
       }
 
       /*Do nothing if error is within tolerances*/
-      if (error <= errorTolerance)
+      if (abs(error) <= errorTolerance)
       {
+         *myOutput = 90;
          return false;
       }
 
