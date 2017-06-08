@@ -9,15 +9,21 @@
 #define PIN_REGISTER_DATA_OUT_4     12  // Reads from 4th shift register for 4th cam shaft's position
 #define PIN_REGISTER_DATA_OUT_5     13  // Reads from 5th shift register for 5th cam shaft's position
 #define PIN_REGISTER_DATA_OUT_6     14  // Reads from 6th shift register for 6th cam shaft's position
-#define PIN_SERVO_INPUT_1           3   // Sets 1st cam shaft's speed
-#define PIN_SERVO_INPUT_2           4   // Sets 2nd cam shaft's speed
-#define PIN_SERVO_INPUT_3           6   // Sets 3rd cam shaft's speed
+#define PIN_SERVO_INPUT_1           6   // Sets 1st cam shaft's speed
+#define PIN_SERVO_INPUT_2           16  // Sets 2nd cam shaft's speed
+#define PIN_SERVO_INPUT_3           3   // Sets 3rd cam shaft's speed
 #define PIN_SERVO_INPUT_4           9   // Sets 4th cam shaft's speed
-#define PIN_SERVO_INPUT_5           10  // Sets 5th cam shaft's speed
-#define PIN_SERVO_INPUT_6           20  // Sets 6th cam shaft's speed
+#define PIN_SERVO_INPUT_5           17  // Sets 5th cam shaft's speed
+#define PIN_SERVO_INPUT_6           4   // Sets 6th cam shaft's speed
+#define PIN_SERVO_SWITCH_1          18  // Switches on servos 1, 2, 3
+#define PIN_SERVO_SWITCH_2          19  // Switches on servos 4, 5, 6
 
 #define NUM_REGISTER                6   // Number of registers in use
 
+
+// Keep state of servo switches
+uint8_t servoSwitch1 = 1;
+uint8_t servoSwitch2 = 0;
 
 /**
  * Read cam shafts' position using absolute encoders through shift registers.
@@ -188,36 +194,15 @@ class ServoGroup {
 
                 servo[i].write(pidOutput[i]);
             }
+
+            // Alternate servo group
+            digitalWrite(PIN_SERVO_SWITCH_1, servoSwitch1);
+            digitalWrite(PIN_SERVO_SWITCH_2, servoSwitch2);
+
+            servoSwitch1 = !servoSwitch1;
+            servoSwitch2 = !servoSwitch2;
         }
 } servoGroup(&encoderGroup);
-
-//class BrailleDisplay {
-//    private:
-//        ServoGroup* servoGroup;
-//
-//        /**
-//         * Character arrays based on cam positioning. Yanked directly from
-//         * /Hardware/BrailleDisplay/libraries/Braille/Braille.cpp
-//         */
-//        uint8_t topCam[16]    = { B0000, B0011, B0101, B0001, B0010, B1111, B0110, B1110,
-//                                  B1010, B1011, B1001, B1000, B0111, B1101, B1100, B0100 };
-//
-//        uint8_t middleCam[16] = { B0000, B0010, B0100, B0011, B1100, B0110, B1011, B1111,
-//                                  B0111, B0101, B1101, B1110, B0001, B1001, B1010, B1000 };
-//
-//        uint8_t bottomCam[16] = { B0000, B0010, B1010, B0011, B1110, B0100, B1001, B0110,
-//                                  B0101, B1101, B0111, B0001, B1111, B1011, B1100, B1000 };
-//
-//        /**
-//         * Each cam position occupies (360 degrees divided by 16 values)
-//         */
-//         const double CAM_POSITION_ANGLE = 360.0 / 16.0;
-//
-//    public:
-//        BrailleDisplay(ServoGroup* sg) {
-//            servoGroup = sg;
-//        }
-//} brailleDisplay(&servoGroup);
 
 void setup() {
     // Set output pins' direction and default signal.
@@ -230,6 +215,9 @@ void setup() {
     pinMode(PIN_SERVO_INPUT_5,  OUTPUT);
     pinMode(PIN_SERVO_INPUT_6,  OUTPUT);
 
+    pinMode(PIN_SERVO_SWITCH_1,  OUTPUT);
+    pinMode(PIN_SERVO_SWITCH_2,  OUTPUT);
+
     pinMode(PIN_REGISTER_DATA_OUT_1, INPUT);
     pinMode(PIN_REGISTER_DATA_OUT_2, INPUT);
     pinMode(PIN_REGISTER_DATA_OUT_3, INPUT);
@@ -240,20 +228,23 @@ void setup() {
     digitalWrite(PIN_REGISTER_LOAD,  HIGH);
     digitalWrite(PIN_REGISTER_CLOCK, LOW);
 
+    digitalWrite(PIN_SERVO_SWITCH_1, LOW);
+    digitalWrite(PIN_SERVO_SWITCH_2, LOW);
+
     Serial.begin(9600);
 }
 
 String inString = "";
 void loop() {
-    delay(50);
+    delay(20);
     servoGroup.runIteration();
 
-    // Testing: Turn the servo to a position given via Serial.
-    Serial.print(encoderGroup.position[0]);
-    Serial.print(" ");
-    Serial.print(encoderGroup.position[1]);
-    Serial.print(" ");
-    Serial.println(encoderGroup.position[2]);
+    // Testing: Turn all servos to the position given via Serial.
+    for (uint8_t i = 0; i < 6; ++i) {
+        Serial.print(encoderGroup.position[i]);
+        Serial.print(" ");
+    }
+    Serial.println(" ");
 
     while (Serial.available()) {
         uint8_t inChar = Serial.read();
@@ -262,9 +253,9 @@ void loop() {
         }
         if ('\n' == inChar) {
             int target = inString.toInt();
-            servoGroup.setTargetPosition(0, target);
-            servoGroup.setTargetPosition(1, target);
-            servoGroup.setTargetPosition(2, target);
+            for (uint8_t i = 0; i < 6; ++i) {
+                servoGroup.setTargetPosition(i, target);
+            }
             inString = "";
         }
     }
