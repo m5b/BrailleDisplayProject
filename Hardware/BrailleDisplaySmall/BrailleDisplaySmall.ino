@@ -20,10 +20,14 @@
 
 #define NUM_REGISTER                6   // Number of registers in use
 
+#define ERROR_TOLERANCE             1   // Allowed margin of errors for checking whether
+                                        // target positions have been reached.
 
-// Keep state of servo switches
-uint8_t servoSwitch1 = 1;
-uint8_t servoSwitch2 = 0;
+
+// Keep state of servo switches.
+// Although the type is uint8_t, it is really interpreted as a boolean,
+// so use only 0 and 1 as values.
+uint8_t activeServoBank = 0;
 
 /**
  * Read cam shafts' position using absolute encoders through shift registers.
@@ -159,9 +163,6 @@ class ServoGroup {
                 servoPID[i]->SetOutputLimits(60, 120);
                 servoPID[i]->SetInputType(CIRCULAR, 0, 127);
 
-                // Allow PID output to differ from target by 1 to prevent tiny oscillations.
-                servoPID[i]->SetErrorTolerance(1);
-
                 servo[i] = Servo();
                 servo[i].attach(servoPin[i], 1000, 2000);
             }
@@ -187,20 +188,34 @@ class ServoGroup {
             // Update servo input position
             encoderGroup->readPosition();
 
+            // Check input positions. If targets have been reached, switch to next bank of servos.
+            uint8_t allInPosition = 1;
+            for (uint8_t encoderIndex = 3 * activeServoBank; encoderIndex < 3 * activeServoBank + 3; ++encoderIndex) {
+                if (abs(encoderGroup->position[encoderIndex] - pidSetpoint[encoderIndex]) > ERROR_TOLERANCE) {
+                    // At least one shaft is still out of target position, so no go
+                    allInPosition = 0;
+                    break;
+                }
+            }
+
+            if (allInPosition) {
+                // All shafts are in position, switch to next bank
+                activeServoBank = !activeServoBank;
+
+                // Alternate servo group
+                digitalWrite(PIN_SERVO_SWITCH_1, !activeServoBank);
+                digitalWrite(PIN_SERVO_SWITCH_2, activeServoBank);
+            }
+
             // Compute next servo output and turn servo
-            for (uint8_t i = 0; i < NUM_REGISTER; ++i) {
+            for (uint8_t i = 3 * activeServoBank; i < 3 * activeServoBank + 3; ++i) {
+                Serial.print("Turning ");
+                Serial.println(i);
                 pidInput[i] = encoderGroup->position[i];
                 servoPID[i]->Compute();
 
                 servo[i].write(pidOutput[i]);
             }
-
-            // Alternate servo group
-            digitalWrite(PIN_SERVO_SWITCH_1, servoSwitch1);
-            digitalWrite(PIN_SERVO_SWITCH_2, servoSwitch2);
-
-            servoSwitch1 = !servoSwitch1;
-            servoSwitch2 = !servoSwitch2;
         }
 } servoGroup(&encoderGroup);
 
@@ -228,7 +243,7 @@ void setup() {
     digitalWrite(PIN_REGISTER_LOAD,  HIGH);
     digitalWrite(PIN_REGISTER_CLOCK, LOW);
 
-    digitalWrite(PIN_SERVO_SWITCH_1, LOW);
+    digitalWrite(PIN_SERVO_SWITCH_1, HIGH);
     digitalWrite(PIN_SERVO_SWITCH_2, LOW);
 
     Serial.begin(9600);
@@ -253,7 +268,7 @@ void loop() {
         }
         if ('\n' == inChar) {
             int target = inString.toInt();
-            for (uint8_t i = 0; i < 6; ++i) {
+            for (uint8_t i = 0; i < 3; ++i) {
                 servoGroup.setTargetPosition(i, target);
             }
             inString = "";

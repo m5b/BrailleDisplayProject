@@ -70,10 +70,10 @@ bool PID::Compute()
       }
 
       /*Scale down error if within tolerances*/
-      if (abs(error) <= errorTolerance)
-      {
-          error *= 0.01;
-      }
+      //if (abs(error) <= errorTolerance)
+      //{
+      //    error *= 0.01;
+      //}
 
       ITerm+= (ki * error);
       if(ITerm > outMax) ITerm= outMax;
